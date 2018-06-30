@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Dumageview
+GenericName=Image Viewer
+Comment=The Dumb Image Viewer
+Icon=dumageview
+Exec=dumageview %f
+Terminal=false
+Categories=Graphics;Viewer;Photography;
+MimeType=image/bmp;image/gif;image/jpeg;image/jpg;image/png;image/tiff;image/x-bmp;image/x-pcx;image/x-tga;image/x-portable-pixmap;image/x-portable-bitmap;image/x-targa;image/x-portable-greymap;image/heic;image/heic-sequence;image/heif;image/heif-sequence;
+
