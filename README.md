@@ -1,7 +1,9 @@
 # Dumageview: The Dumb Image Viewer
 Dumageview is a simple Qt-based image viewer. There are many like it, but this
-one has "dum" in the name. It was created as a test case for my [HEIF image
-plugin]. It is generally functional and decently quick.
+one has "dum" in the name. It was created partially as a test case for my [HEIF
+image plugin], partially to experiment with C++17, and partially for an
+assortment of other less concrete reasons. Roughly a 20/30/50 split. It is,
+however, generally functional and reasonably fast.
 
 [HEIF image plugin]: https://github.com/jakar/qt-heif-image-plugin
 
