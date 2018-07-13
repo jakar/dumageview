@@ -51,6 +51,23 @@ namespace dumageview::imagecontroller
   // Opening
   //
 
+  auto ImageController::tryRead(QImageReader& reader,
+                                ImageInfo const& info)
+    -> std::variant<QString, OpenSuccess>
+  {
+    QImage image = reader.read();
+
+    if (image.isNull())
+      return reader.errorString();
+
+    _image = image;
+    _imageInfo = info;
+    _imageInfo->frame = reader.currentImageNumber();
+    _imageInfo->numFrames = reader.imageCount();
+
+    return OpenSuccess{};
+  }
+
   auto ImageController::tryOpen(QString const& userPath)
     -> std::variant<QString, OpenSuccess>
   {
@@ -63,17 +80,15 @@ namespace dumageview::imagecontroller
       auto qpath = conv::qstr(absPath.string());
       auto qname = conv::qstr(absPath.filename().string());
 
-      QImageReader reader(qpath);
-      reader.setAutoTransform(true);
-      QImage image = reader.read();
+      auto reader = std::make_unique<QImageReader>(qpath);
+      reader->setAutoTransform(true);
 
-      if (image.isNull())
-        return reader.errorString();
+      auto result = tryRead(*reader, {qname, qpath});
 
-      _image = image;
-      _imageInfo = {qname, qpath};
+      if (std::holds_alternative<OpenSuccess>(result))
+        _reader = std::move(reader);
 
-      return OpenSuccess{};
+      return result;
     }
     catch (fs::filesystem_error const& error)
     {
@@ -100,6 +115,49 @@ namespace dumageview::imagecontroller
       ),
       tryOpen(path)
     );
+  }
+
+  //
+  // Multi-part images
+  //
+
+  void ImageController::changeFrame(Direction direction)
+  {
+    if (!_reader || !_imageInfo)
+      return;
+
+    int newFrame = math::mod(_imageInfo->frame + enumutil::cast(direction),
+                             _imageInfo->numFrames);
+
+    bool jumpOK = _reader->jumpToImage(newFrame);
+    if (!jumpOK)
+    {
+      log::warn("Could not jump to new frame: {}", newFrame);
+      return;
+    }
+
+    auto handler = hana::overload(
+      [&](QString const& error) {
+        log::warn("Could not read frame {}: {}", newFrame, conv::str(error));
+      },
+      [&](OpenSuccess) {
+        DUMAGEVIEW_ASSERT(_image);
+        DUMAGEVIEW_ASSERT(_imageInfo);
+        imageChanged(*_image, *_imageInfo);
+      }
+    );
+
+    std::visit(handler, tryRead(*_reader, *_imageInfo));
+  }
+
+  void ImageController::nextFrame()
+  {
+    changeFrame(Direction::forward);
+  }
+
+  void ImageController::prevFrame()
+  {
+    changeFrame(Direction::backward);
   }
 
   //
@@ -279,6 +337,9 @@ namespace dumageview::imagecontroller
     _image.reset();
     _imageInfo.reset();
     _dirInfo.reset();
+
+    _reader.reset();
+
     imageRemoved();
   }
 

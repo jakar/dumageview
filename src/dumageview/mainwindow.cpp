@@ -59,8 +59,9 @@ namespace dumageview
   void MainWindow::resetImage(QImage const& image, ImageInfo const& info)
   {
     setWindowTitle(
-      QString("%1 (%2 / %3) - %4")
-      .arg(info.fileName).arg(info.dirIndex + 1).arg(info.dirSize)
+      QString("%1 : %2 (%3 / %4) - %5")
+      .arg(info.fileName).arg(info.frame)
+      .arg(info.dirIndex + 1).arg(info.dirSize)
       .arg(Application::singletonInstance().applicationDisplayName()));
 
     imageArea().resetImage(image);

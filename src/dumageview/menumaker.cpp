@@ -83,6 +83,16 @@ namespace dumageview
           Qt::Key_J, Qt::Key_N, Qt::Key_Space});
 
     //
+    // Sequence navigation
+    //
+
+    setA(_actions.prevFrame, "Previous Frame",
+         {Qt::Key_Comma});
+
+    setA(_actions.nextFrame, "Next Frame",
+         {Qt::Key_Period});
+
+    //
     // Window manipulation
     //
 
@@ -125,6 +135,8 @@ namespace dumageview
       _actions.panRight,
       _actions.prevImage,
       _actions.nextImage,
+      _actions.prevFrame,
+      _actions.nextFrame,
     };
   }
 
@@ -144,6 +156,9 @@ namespace dumageview
     _contextMenu.addAction(&_actions.zoomOriginal);
     _contextMenu.addAction(&_actions.zoomIn);
     _contextMenu.addAction(&_actions.zoomOut);
+    _contextMenu.addSeparator();
+    _contextMenu.addAction(&_actions.prevFrame);
+    _contextMenu.addAction(&_actions.nextFrame);
     _contextMenu.addSeparator();
     _contextMenu.addAction(&_actions.showMenuBar);
     _contextMenu.addAction(&_actions.fullScreen);
@@ -167,6 +182,9 @@ namespace dumageview
     viewMenu->addAction(&_actions.zoomOut);
     viewMenu->addAction(&_actions.zoomToFit);
     viewMenu->addAction(&_actions.zoomOriginal);
+    fileMenu->addSeparator();
+    fileMenu->addAction(&_actions.prevFrame);
+    fileMenu->addAction(&_actions.nextFrame);
     viewMenu->addSeparator();
     viewMenu->addAction(&_actions.showMenuBar);
     viewMenu->addAction(&_actions.fullScreen);

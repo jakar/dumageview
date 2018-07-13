@@ -31,6 +31,9 @@ namespace dumageview::actionset
     QAction prevImage{};
     QAction nextImage{};
 
+    QAction prevFrame{};
+    QAction nextFrame{};
+
     QAction fullScreen{};
     QAction exitFullScreen{};
 
@@ -59,6 +62,9 @@ namespace dumageview::actionset
 
       actions.prevImage,
       actions.nextImage,
+
+      actions.prevFrame,
+      actions.nextFrame,
 
       actions.fullScreen,
       actions.exitFullScreen,

@@ -13,6 +13,9 @@ namespace dumageview
     QString fileName;
     QString filePath;  // absolute
 
+    int frame{0};
+    int numFrames{1};
+
     int dirIndex{0};  // zero-based; add one when displaying
     int dirSize{1};
   };

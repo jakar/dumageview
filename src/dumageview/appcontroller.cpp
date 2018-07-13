@@ -74,6 +74,14 @@ namespace dumageview
       &actions().nextImage, &QAction::triggered,
       &imageController(), &ImageController::nextImage
     );
+    qtutil::connect(
+      &actions().prevFrame, &QAction::triggered,
+      &imageController(), &ImageController::prevFrame
+    );
+    qtutil::connect(
+      &actions().nextFrame, &QAction::triggered,
+      &imageController(), &ImageController::nextFrame
+    );
 
     // -- window actions
 

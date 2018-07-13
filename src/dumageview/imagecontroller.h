@@ -4,12 +4,14 @@
 #include "dumageview/imageinfo.h"
 
 #include <QImage>
+#include <QImageReader>
 #include <QObject>
 #include <QString>
 
 #include <boost/filesystem.hpp>
 
 #include <optional>
+#include <memory>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -56,6 +58,9 @@ namespace dumageview::imagecontroller
     void nextImage();
     void prevImage();
 
+    void nextFrame();
+    void prevFrame();
+
     QString dialogDir() const;
     FileExtensionSet const& validFileExtensions() const;
 
@@ -71,11 +76,15 @@ namespace dumageview::imagecontroller
 
     struct OpenSuccess {};
 
+    std::variant<QString, OpenSuccess> tryRead(QImageReader& reader,
+                                               ImageInfo const& info);
+
     std::variant<QString, OpenSuccess> tryOpen(QString const& path);
 
     void loadDir();
     void updateImageDirInfo();
 
+    void changeFrame(Direction direction);
     void changeWithinDir(Direction direction);
 
     //
@@ -85,6 +94,8 @@ namespace dumageview::imagecontroller
     std::optional<QImage> _image;
     std::optional<ImageInfo> _imageInfo;
     std::optional<DirInfo> _dirInfo;
+
+    std::unique_ptr<QImageReader> _reader;
 
     FileExtensionSet _validExtensions;
   };
