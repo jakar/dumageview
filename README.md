@@ -1,9 +1,9 @@
 # Dumageview: The Dumb Image Viewer
-Dumageview is a simple Qt-based image viewer. There are many like it, but this
-one has "dum" in the name. It was created partially as a test case for my [HEIF
-image plugin], partially to experiment with C++17, and partially for an
-assortment of other less concrete reasons. Roughly a 20/30/50 split. It is,
-however, generally functional and reasonably fast.
+Dumageview is a simple Qt-based image viewer.
+It was created partially as a test case for my [HEIF image plugin], partially
+to experiment with C++17, and partially for an assortment of other less
+concrete reasons. Roughly a 20/30/50 split. It is, however, functional and
+reasonably fast.
 
 [HEIF image plugin]: https://github.com/jakar/qt-heif-image-plugin
 
@@ -15,8 +15,8 @@ Prerequisites:
 - Qt 5
 
 Included as submodules:
-- [glm](https://github.com/g-truc/glm)
 - [fmt](https://github.com/fmtlib/fmt)
+- [glm](https://github.com/g-truc/glm)
 - [spdlog](https://github.com/gabime/spdlog)
 
 ## Installation
@@ -33,7 +33,7 @@ $ cmake ..
 $ make -j$(nproc)
 ```
 
-Step three, put it in its place:
+Step three, install it:
 ```console
 $ sudo make install
 ```
