@@ -6,25 +6,25 @@
 #include <string>
 
 namespace dumageview::cmdline {
-  Parser::Parser(int argc, char** argv) : _parser(argc, argv) {
-    _generalOpts.add_options()("help,h", "display help message");
+  Parser::Parser(int argc, char** argv) : parser_(argc, argv) {
+    generalOpts_.add_options()("help,h", "display help message");
 
-    _hiddenOpts.add_options()("input", po::value<std::string>(), "input image");
+    hiddenOpts_.add_options()("input", po::value<std::string>(), "input image");
 
-    _visibleOpts.add(_generalOpts);
-    _allOpts.add(_generalOpts).add(_hiddenOpts);
+    visibleOpts_.add(generalOpts_);
+    allOpts_.add(generalOpts_).add(hiddenOpts_);
 
-    _positionalArgs.add("input", 1);
+    positionalArgs_.add("input", 1);
 
-    _parser.options(_allOpts);
-    _parser.positional(_positionalArgs);
+    parser_.options(allOpts_);
+    parser_.positional(positionalArgs_);
 
     // allow opts that Qt might use
-    // _parser.allow_unregistered();
+    // parser_.allow_unregistered();
   }
 
   Args Parser::parse() {
-    auto parsedOpts = _parser.run();
+    auto parsedOpts = parser_.run();
 
     po::variables_map varMap;
     po::store(parsedOpts, varMap);
@@ -49,6 +49,6 @@ namespace dumageview::cmdline {
   }
 
   void Parser::printUsage() {
-    fmt::print("{}\n", _visibleOpts);
+    fmt::print("{}\n", visibleOpts_);
   }
 }

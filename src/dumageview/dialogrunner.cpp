@@ -4,11 +4,10 @@
 #include "dumageview/qtutil.h"
 
 namespace dumageview {
-  DialogRunner::DialogRunner(QDialog* dialog_, QObject* parent_, bool ownDialog)
-      : QObject{parent_}, _dialog{dialog_}, _deleteDialogWhenFinished{
-                                              ownDialog} {
-    DUMAGEVIEW_ASSERT(_dialog);
-    qtutil::connect(_dialog, &QDialog::destroyed, this, &DialogRunner::cleanup);
+  DialogRunner::DialogRunner(QDialog* dialog, QObject* parent, bool ownDialog)
+      : QObject{parent}, dialog_{dialog}, deleteDialogWhenFinished_{ownDialog} {
+    DUMAGEVIEW_ASSERT(dialog_);
+    qtutil::connect(dialog_, &QDialog::destroyed, this, &DialogRunner::cleanup);
   }
 
   DialogRunner::~DialogRunner() {
@@ -16,7 +15,7 @@ namespace dumageview {
   }
 
   void DialogRunner::setupConnections() {
-    qtutil::connect(_dialog,
+    qtutil::connect(dialog_,
                     &QDialog::finished,
                     this,
                     &DialogRunner::unwindHandlers);
@@ -24,20 +23,20 @@ namespace dumageview {
 
   void DialogRunner::safeExec() {
     setupConnections();
-    _dialog->open();
+    dialog_->open();
   }
 
   void DialogRunner::unwindHandlers(int result) {
-    _finishHandler(result);
+    finishHandler_(result);
     cleanup();
   }
 
   void DialogRunner::cleanup() {
-    _finishHandler = [](int) {};
+    finishHandler_ = [](int) {};
 
-    if (_dialog && _deleteDialogWhenFinished) {
-      _dialog->deleteLater();
-      _dialog = nullptr;
+    if (dialog_ && deleteDialogWhenFinished_) {
+      dialog_->deleteLater();
+      dialog_ = nullptr;
     }
 
     deleteLater();

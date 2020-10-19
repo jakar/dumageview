@@ -17,13 +17,13 @@ namespace {
 
 namespace dumageview::application {
   Application::Application(int& argc, char** argv)
-      : QApplication(argc, argv), _log(log::initAppLogger()) {
-    DUMAGEVIEW_LOG_TRACE(_log);
+      : QApplication(argc, argv), log_(log::initAppLogger()) {
+    DUMAGEVIEW_LOG_TRACE(log_);
 
     cmdline::Parser cmdParser{argc, argv};
 
     try {
-      _cmdArgs = cmdParser.parse();
+      cmdArgs_ = cmdParser.parse();
     } catch (cmdline::Error const& ex) {
       fmt::print("\n{}\n", ex.what());
       cmdParser.printUsage();
@@ -32,7 +32,7 @@ namespace dumageview::application {
   }
 
   void Application::init() {
-    DUMAGEVIEW_LOG_TRACE(_log);
+    DUMAGEVIEW_LOG_TRACE(log_);
 
     // set global opengl state
     auto surfaceFormat = QSurfaceFormat::defaultFormat();
@@ -43,6 +43,6 @@ namespace dumageview::application {
 
     setApplicationName("Dumageview");
 
-    _controller = std::make_unique<AppController>(_cmdArgs.value());
+    controller_ = std::make_unique<AppController>(cmdArgs_.value());
   }
 }

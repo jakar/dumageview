@@ -75,14 +75,14 @@ namespace dumageview {
   }
 
   void MessageBoxRunner::setupConnections() {
-    qtutil::connect(messageBox(),
+    qtutil::connect(getMessageBox(),
                     &QMessageBox::buttonClicked,
                     this,
                     &MessageBoxRunner::handleResult);
   }
 
   void MessageBoxRunner::handleResult(QAbstractButton* button) {
-    int buttonID = messageBox()->standardButton(button);
+    int buttonID = getMessageBox()->standardButton(button);
 
     // Qt returns -1 in exec() for no button
     int execResult = (buttonID == QMessageBox::NoButton) ? -1 : buttonID;

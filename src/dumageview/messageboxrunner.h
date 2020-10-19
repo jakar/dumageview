@@ -20,8 +20,8 @@ namespace dumageview {
 
     virtual ~MessageBoxRunner() = default;
 
-    QMessageBox* messageBox() const {
-      return static_cast<QMessageBox*>(dialog());
+    QMessageBox* getMessageBox() const {
+      return static_cast<QMessageBox*>(getDialog());
     }
 
     //

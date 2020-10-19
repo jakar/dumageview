@@ -13,7 +13,7 @@ namespace dumageview {
     Q_OBJECT;
 
    public:
-    explicit MainWindow(ActionSet& actions_);
+    explicit MainWindow(ActionSet& actions);
 
     virtual ~MainWindow() = default;
 
@@ -39,8 +39,8 @@ namespace dumageview {
     // Public accessors
     //
 
-    ImageWidget& imageArea() {
-      return _imageArea;
+    ImageWidget& getImageArea() {
+      return imageArea_;
     }
 
    private:
@@ -48,8 +48,8 @@ namespace dumageview {
     // Private data
     //
 
-    ActionSet& _actions;
-    ImageWidget _imageArea;
+    ActionSet& actions_;
+    ImageWidget imageArea_;
   };
 }
 

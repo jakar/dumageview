@@ -50,7 +50,7 @@ namespace dumageview::imagerenderer::detail {
 
     ~ImageRenderer();
 
-    void setImage(QImage image_);
+    void setImage(QImage image);
 
     void removeImage();
 
@@ -70,23 +70,23 @@ namespace dumageview::imagerenderer::detail {
     ImageRenderer(ImageRenderer const&) = delete;
     ImageRenderer& operator=(ImageRenderer const&) = delete;
 
-    glm::dvec2 imageSize() const;
-    glm::dvec2 screenSize() const;
+    glm::dvec2 getImageSize() const;
+    glm::dvec2 getScreenSize() const;
 
-    SizeInfo sizeInfo() const;
-    ViewMod<View> viewMod() const;
+    SizeInfo getSizeInfo() const;
+    ViewMod<View> getViewMod() const;
 
     //
     // Private data
     //
 
-    ImageWidget& _widget;
+    ImageWidget& widget_;
 
-    QMetaObject::Connection _contextDestroyConnection;
+    QMetaObject::Connection contextDestroyConnection_;
 
-    QOpenGLFunctions_2_1* _gl = nullptr;
+    QOpenGLFunctions_2_1* gl_ = nullptr;
 
-    std::unique_ptr<ImageState> _imageState;
+    std::unique_ptr<ImageState> imageState_;
   };
 }
 

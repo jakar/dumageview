@@ -19,7 +19,7 @@ namespace dumageview {
     Q_OBJECT;
 
    public:
-    explicit ImageWidget(ActionSet& actions_, QWidget* parent_ = nullptr);
+    explicit ImageWidget(ActionSet& actions, QWidget* parent = nullptr);
 
     virtual ~ImageWidget();
 
@@ -52,7 +52,7 @@ namespace dumageview {
 
     void initializeGL() override;
 
-    void resizeGL(int width_, int height_) override;
+    void resizeGL(int width, int height) override;
 
     void paintGL() override;
 
@@ -89,11 +89,11 @@ namespace dumageview {
     // Private data
     //
 
-    ActionSet& _actions;
-    std::optional<QImage> _image;
-    std::unique_ptr<ImageRenderer> _renderer;
+    ActionSet& actions_;
+    std::optional<QImage> image_;
+    std::unique_ptr<ImageRenderer> renderer_;
 
-    std::optional<QPoint> _lastMousePos;
+    std::optional<QPoint> lastMousePos_;
   };
 }
 

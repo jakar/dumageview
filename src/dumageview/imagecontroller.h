@@ -56,8 +56,8 @@ namespace dumageview::imagecontroller {
     void nextFrame();
     void prevFrame();
 
-    QString dialogDir() const;
-    FileExtensionSet const& validFileExtensions() const;
+    QString getDialogDir() const;
+    FileExtensionSet const& getValidFileExtensions() const;
 
    Q_SIGNALS:
 
@@ -85,13 +85,13 @@ namespace dumageview::imagecontroller {
     // Private data
     //
 
-    std::optional<QImage> _image;
-    std::optional<ImageInfo> _imageInfo;
-    std::optional<DirInfo> _dirInfo;
+    std::optional<QImage> image_;
+    std::optional<ImageInfo> imageInfo_;
+    std::optional<DirInfo> dirInfo_;
 
-    std::unique_ptr<QImageReader> _reader;
+    std::unique_ptr<QImageReader> reader_;
 
-    FileExtensionSet _validExtensions;
+    FileExtensionSet validExtensions_;
   };
 
   class Error : virtual public std::runtime_error {

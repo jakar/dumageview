@@ -16,9 +16,9 @@
 #include <QWidget>
 
 namespace dumageview {
-  MainWindow::MainWindow(ActionSet& actions_)
-      : QMainWindow{}, _actions{actions_}, _imageArea(actions_, this) {
-    setCentralWidget(&_imageArea);
+  MainWindow::MainWindow(ActionSet& actions)
+      : QMainWindow{}, actions_{actions}, imageArea_(actions, this) {
+    setCentralWidget(&imageArea_);
     centerOnScreen();
   }
 
@@ -41,7 +41,7 @@ namespace dumageview {
 
   void MainWindow::exitFullScreen() {
     showNormal();
-    _actions.fullScreen.setChecked(false);
+    actions_.fullScreen.setChecked(false);
   }
 
   //
@@ -55,13 +55,14 @@ namespace dumageview {
         .arg(info.frame)
         .arg(info.dirIndex + 1)
         .arg(info.dirSize)
-        .arg(Application::singletonInstance().applicationDisplayName()));
+        .arg(Application::getSingletonInstance().applicationDisplayName()));
 
-    imageArea().resetImage(image);
+    getImageArea().resetImage(image);
   }
 
   void MainWindow::removeImage() {
-    setWindowTitle(Application::singletonInstance().applicationDisplayName());
-    imageArea().removeImage();
+    setWindowTitle(
+      Application::getSingletonInstance().applicationDisplayName());
+    getImageArea().removeImage();
   }
 }

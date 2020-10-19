@@ -22,12 +22,12 @@ namespace dumageview::cmdline {
     void printUsage();
 
    private:
-    po::command_line_parser _parser;
-    po::options_description _generalOpts{"General options"};
-    po::options_description _hiddenOpts;
-    po::options_description _visibleOpts;
-    po::options_description _allOpts;
-    po::positional_options_description _positionalArgs;
+    po::command_line_parser parser_;
+    po::options_description generalOpts_{"General options"};
+    po::options_description hiddenOpts_;
+    po::options_description visibleOpts_;
+    po::options_description allOpts_;
+    po::positional_options_description positionalArgs_;
   };
 
   using Error = po::error;

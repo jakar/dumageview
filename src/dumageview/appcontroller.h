@@ -15,7 +15,7 @@ namespace dumageview {
     Q_OBJECT;
 
    public:
-    explicit AppController(cmdline::Args const& cmdArgs_);
+    explicit AppController(cmdline::Args const& cmdArgs);
 
     virtual ~AppController() = default;
 
@@ -32,36 +32,36 @@ namespace dumageview {
     // Private accessors
     //
 
-    ActionSet& actions() {
-      return _menuMaker.actions();
+    ActionSet& getActions() {
+      return menuMaker_.getActions();
     }
 
-    ImageController& imageController() {
-      return _imageController;
+    ImageController& getImageController() {
+      return imageController_;
     }
-    ImageController const& imageController() const {
-      return _imageController;
-    }
-
-    MainWindow& mainWindow() {
-      return _mainWindow;
+    ImageController const& getImageController() const {
+      return imageController_;
     }
 
-    ImageWidget& imageWidget() {
-      return _mainWindow.imageArea();
+    MainWindow& getMainWindow() {
+      return mainWindow_;
     }
 
-    MenuMaker& menuMaker() {
-      return _menuMaker;
+    ImageWidget& getImageWidget() {
+      return mainWindow_.getImageArea();
+    }
+
+    MenuMaker& getMenuMaker() {
+      return menuMaker_;
     }
 
     //
     // Private data
     //
 
-    MenuMaker _menuMaker;
-    ImageController _imageController;
-    MainWindow _mainWindow;
+    MenuMaker menuMaker_;
+    ImageController imageController_;
+    MainWindow mainWindow_;
   };
 }
 

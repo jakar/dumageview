@@ -18,21 +18,21 @@ namespace dumageview::renderview {
   D& BaseViewMod<D>::modify(F&& func) {
     auto visitor =
       boost::hana::overload([](ZoomToFitView) {}, std::forward<F>(func));
-    std::visit(visitor, _view);
+    std::visit(visitor, view_);
     return dref();
   }
 
   template<class D>
   D& BaseViewMod<D>::normalize() {
     modify([this](auto& rv) {
-      auto scaledImageSize = rv.scale * _size.image;
-      ViewMod vm{rv, _size};
+      auto scaledImageSize = rv.scale * size_.image;
+      ViewMod vm{rv, size_};
 
       for (auto const& dim : math::dimensions2D) {
-        if (dim(scaledImageSize) < dim(_size.screen))
-          rv = vm.center(dim).view();
+        if (dim(scaledImageSize) < dim(size_.screen))
+          rv = vm.center(dim).getView();
         else
-          rv = vm.clamp(dim).view();
+          rv = vm.clamp(dim).getView();
       }
     });
 
@@ -47,19 +47,19 @@ namespace dumageview::renderview {
       },
       [&](ZoomToFitView) {
         auto [longDim, shortDim] =
-          (math::aspectRatio(_size.image) > math::aspectRatio(_size.screen))
+          (math::aspectRatio(size_.image) > math::aspectRatio(size_.screen))
             ? std::pair{math::getX, math::getY}
             : std::pair{math::getY, math::getX};
 
-        double scale = longDim(_size.screen) / longDim(_size.image);
+        double scale = longDim(size_.screen) / longDim(size_.image);
 
         ManualView rv{scale, {0.0, 0.0}};
-        ViewMod vm{rv, _size};
-        return vm.center(shortDim).view();
+        ViewMod vm{rv, size_};
+        return vm.center(shortDim).getView();
       });
 
-    auto rv = std::visit(visitor, _view);
-    return {rv, _size};
+    auto rv = std::visit(visitor, view_);
+    return {rv, size_};
   }
 
   //
@@ -87,19 +87,19 @@ namespace dumageview::renderview {
   //
 
   inline auto ViewMod<ManualView>::center(math::Getter const& dim) -> ViewMod& {
-    dim(view().position) =
-      dim(size().screen * 0.5) - dim(size().image * view().scale * 0.5);
+    dim(getView().position) = dim(getSize().screen * 0.5)
+                              - dim(getSize().image * getView().scale * 0.5);
 
     return *this;
   }
 
   inline auto ViewMod<ManualView>::clamp(math::Getter const& dim) -> ViewMod& {
-    auto botRight = imageToScreen(size().image);
+    auto botRight = imageToScreen(getSize().image);
 
-    if (dim(view().position) > 0.0) {
-      dim(view().position) = 0.0;
-    } else if (dim(botRight) < dim(size().screen)) {
-      dim(view().position) += dim(size().screen) - dim(botRight);
+    if (dim(getView().position) > 0.0) {
+      dim(getView().position) = 0.0;
+    } else if (dim(botRight) < dim(getSize().screen)) {
+      dim(getView().position) += dim(getSize().screen) - dim(botRight);
     }
 
     return *this;
@@ -110,10 +110,10 @@ namespace dumageview::renderview {
     -> ViewMod& {
     // zoom around fixed point
     auto imageFixed = screenToImage(screenFixed);
-    imageFixed = glm::clamp(imageFixed, glm::dvec2{0.0}, size().image);
+    imageFixed = glm::clamp(imageFixed, glm::dvec2{0.0}, getSize().image);
 
-    view().scale = std::clamp(scale, minZoom, maxZoom);
-    view().position = screenFixed - view().scale * imageFixed;
+    getView().scale = std::clamp(scale, minZoom, maxZoom);
+    getView().position = screenFixed - getView().scale * imageFixed;
 
     normalize();
     return *this;
@@ -121,19 +121,19 @@ namespace dumageview::renderview {
 
   inline glm::dvec2 ViewMod<ManualView>::imageToScreen(
     glm::dvec2 const& imagePos) const {
-    return view().scale * imagePos + view().position;
+    return getView().scale * imagePos + getView().position;
   }
 
   inline glm::dvec2 ViewMod<ManualView>::screenToImage(
     glm::dvec2 const& screenPos) const {
-    return (1.0 / view().scale) * (screenPos - view().position);
+    return (1.0 / getView().scale) * (screenPos - getView().position);
   }
 
   inline glm::dmat4 ViewMod<ManualView>::imageToScreenMatrix() const {
     glm::dmat4 eye{1.0};
-    glm::dvec2 scale{view().scale};
+    glm::dvec2 scale{getView().scale};
 
-    auto t = glm::translate(eye, glm::dvec3{view().position, 0.0});
+    auto t = glm::translate(eye, glm::dvec3{getView().position, 0.0});
     auto s = glm::scale(eye, glm::dvec3{scale, 1.0});
 
     return t * s;
@@ -141,9 +141,9 @@ namespace dumageview::renderview {
 
   inline glm::dmat4 ViewMod<ManualView>::screenToImageMatrix() const {
     glm::dmat4 eye{1.0};
-    glm::dvec2 invScale{1.0 / view().scale};
+    glm::dvec2 invScale{1.0 / getView().scale};
 
-    auto t = glm::translate(eye, glm::dvec3{-1.0 * view().position, 0.0});
+    auto t = glm::translate(eye, glm::dvec3{-1.0 * getView().position, 0.0});
     auto s = glm::scale(eye, glm::dvec3{invScale, 1.0});
 
     return s * t;

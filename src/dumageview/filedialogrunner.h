@@ -25,8 +25,8 @@ namespace dumageview {
     // Public member functions
     //
 
-    QFileDialog* fileDialog() const {
-      return static_cast<QFileDialog*>(dialog());
+    QFileDialog* getFileDialog() const {
+      return static_cast<QFileDialog*>(getDialog());
     }
 
     //

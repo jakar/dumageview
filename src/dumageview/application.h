@@ -38,14 +38,14 @@ namespace dumageview::application {
 
     void init();
 
-    log::LoggerPtr const& log() const {
-      return _log;
+    log::LoggerPtr const& getLog() const {
+      return log_;
     }
 
    private:
-    log::LoggerPtr _log;
-    std::optional<cmdline::Args> _cmdArgs;
-    std::unique_ptr<AppController> _controller;
+    log::LoggerPtr log_;
+    std::optional<cmdline::Args> cmdArgs_;
+    std::unique_ptr<AppController> controller_;
   };
 }
 

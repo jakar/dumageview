@@ -47,7 +47,7 @@ namespace dumageview::renderview {
   template<class Derived>
   class BaseViewMod {
    public:
-    BaseViewMod(View const& v, SizeInfo const& s) : _view{v}, _size{s} {
+    BaseViewMod(View const& v, SizeInfo const& s) : view_{v}, size_{s} {
     }
     BaseViewMod(BaseViewMod const&) = default;
 
@@ -57,8 +57,8 @@ namespace dumageview::renderview {
     Derived& normalize();
     ViewMod<ManualView> reified() const;
 
-    SizeInfo const& size() const {
-      return _size;
+    SizeInfo const& getSize() const {
+      return size_;
     }
 
     Derived& dref() {
@@ -69,8 +69,8 @@ namespace dumageview::renderview {
     }
 
    protected:
-    View _view;
-    SizeInfo const _size;
+    View view_;
+    SizeInfo const size_;
   };
 
   template<>
@@ -85,11 +85,11 @@ namespace dumageview::renderview {
     glm::dmat4 imageToScreenMatrix() const;
     glm::dmat4 screenToImageMatrix() const;
 
-    View& view() {
-      return _view;
+    View& getView() {
+      return view_;
     }
-    View const& view() const {
-      return _view;
+    View const& getview() const {
+      return view_;
     }
   };
 
@@ -113,11 +113,11 @@ namespace dumageview::renderview {
     glm::dmat4 imageToScreenMatrix() const;
     glm::dmat4 screenToImageMatrix() const;
 
-    ManualView& view() {
-      return std::get<ManualView>(_view);
+    ManualView& getView() {
+      return std::get<ManualView>(view_);
     }
-    ManualView const& view() const {
-      return std::get<ManualView>(_view);
+    ManualView const& getView() const {
+      return std::get<ManualView>(view_);
     }
   };
 }

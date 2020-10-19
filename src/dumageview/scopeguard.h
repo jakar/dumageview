@@ -8,23 +8,23 @@ namespace dumageview {
   template<class F>
   class [[nodiscard]] ScopeGuard {
    public:
-    explicit ScopeGuard(F const& handler) noexcept : _handler(handler) {
+    explicit ScopeGuard(F const& handler) noexcept : handler_(handler) {
     }
 
-    explicit ScopeGuard(F && handler) noexcept : _handler(std::move(handler)) {
+    explicit ScopeGuard(F && handler) noexcept : handler_(std::move(handler)) {
     }
 
     ScopeGuard(ScopeGuard && rhs) noexcept
-        : _handler(std::move(rhs._handler)), _released(rhs._released) {
+        : handler_(std::move(rhs.handler_)), released_(rhs.released_) {
       rhs.release();
     }
 
     ~ScopeGuard() noexcept {
-      if (!_released) _handler();
+      if (!released_) handler_();
     }
 
     void release() noexcept {
-      _released = true;
+      released_ = true;
     }
 
    private:
@@ -32,8 +32,8 @@ namespace dumageview {
     ScopeGuard& operator=(ScopeGuard const&) = delete;
     ScopeGuard& operator=(ScopeGuard&&) = delete;
 
-    F _handler;
-    bool _released = false;
+    F handler_;
+    bool released_ = false;
   };
 
   template<class F>

@@ -18,9 +18,9 @@ namespace dumageview::log {
   }
 
   LoggerPtr initAppLogger() {
-    DUMAGEVIEW_ASSERT(!spdlog::get(appLoggerName()));
+    DUMAGEVIEW_ASSERT(!spdlog::get(getAppLoggerName()));
 
-    auto logger = spdlog::stdout_color_mt(appLoggerName());
+    auto logger = spdlog::stdout_color_mt(getAppLoggerName());
     DUMAGEVIEW_ASSERT(logger);
 
     logger->set_pattern(defaultPattern);

@@ -9,7 +9,7 @@
 #include <utility>
 
 namespace dumageview::classtools {
-  enum class Mutability { mutable_, const_ };
+  enum class Mutability { kMutable, kConst };
 
   /**
    * Keeps reference to global instance of class.
@@ -18,40 +18,40 @@ namespace dumageview::classtools {
   class Singleton {
    public:
     using Ref =
-      std::conditional_t<mut == Mutability::mutable_, Derived&, Derived const&>;
+      std::conditional_t<mut == Mutability::kMutable, Derived&, Derived const&>;
 
     virtual ~Singleton() {
-      DUMAGEVIEW_ASSERT(_instance != nullptr);
-      _instance = nullptr;
+      DUMAGEVIEW_ASSERT(instance_ != nullptr);
+      instance_ = nullptr;
     }
 
-    static Ref singletonInstance() {
-      DUMAGEVIEW_ASSERT(_instance);
-      return static_cast<Ref>(*_instance);
+    static Ref getSingletonInstance() {
+      DUMAGEVIEW_ASSERT(instance_);
+      return static_cast<Ref>(*instance_);
     }
 
-    static bool singletonInstantiated() {
-      return (_instance != nullptr);
+    static bool isSingletonInstantiated() {
+      return (instance_ != nullptr);
     }
 
    protected:
     Singleton() {
-      DUMAGEVIEW_ASSERT(_instance == nullptr);
-      _instance = this;
+      DUMAGEVIEW_ASSERT(instance_ == nullptr);
+      instance_ = this;
     }
 
    private:
     Singleton(Singleton const&) = delete;
     Singleton& operator=(Singleton const&) = delete;
 
-    inline static Singleton* _instance = nullptr;
+    inline static Singleton* instance_ = nullptr;
   };
 
   template<class D>
-  using ConstSingleton = Singleton<Mutability::const_, D>;
+  using ConstSingleton = Singleton<Mutability::kConst, D>;
 
   template<class D>
-  using MutableSingleton = Singleton<Mutability::mutable_, D>;
+  using MutableSingleton = Singleton<Mutability::kMutable, D>;
 
   //
   // Misc utils

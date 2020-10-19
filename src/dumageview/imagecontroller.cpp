@@ -50,7 +50,7 @@ namespace dumageview::imagecontroller {
   }
 
   ImageController::ImageController()
-      : QObject{}, _validExtensions(defaultFileExtenions.begin(),
+      : QObject{}, validExtensions_(defaultFileExtenions.begin(),
                                     defaultFileExtenions.end()) {
   }
 
@@ -64,10 +64,10 @@ namespace dumageview::imagecontroller {
 
     if (image.isNull()) return reader.errorString();
 
-    _image = image;
-    _imageInfo = info;
-    _imageInfo->frame = reader.currentImageNumber();
-    _imageInfo->numFrames = reader.imageCount();
+    image_ = image;
+    imageInfo_ = info;
+    imageInfo_->frame = reader.currentImageNumber();
+    imageInfo_->numFrames = reader.imageCount();
 
     return OpenSuccess{};
   }
@@ -88,7 +88,7 @@ namespace dumageview::imagecontroller {
       auto result = tryRead(*reader, {qname, qpath});
 
       if (std::holds_alternative<OpenSuccess>(result))
-        _reader = std::move(reader);
+        reader_ = std::move(reader);
 
       return result;
     } catch (fs::filesystem_error const& error) {
@@ -99,12 +99,12 @@ namespace dumageview::imagecontroller {
   void ImageController::openImage(QString const& path) {
     std::visit(hana::overload(
                  [this](OpenSuccess) {
-                   DUMAGEVIEW_ASSERT(_image);
-                   DUMAGEVIEW_ASSERT(_imageInfo);
+                   DUMAGEVIEW_ASSERT(image_);
+                   DUMAGEVIEW_ASSERT(imageInfo_);
 
                    loadDir();
                    updateImageDirInfo();
-                   imageChanged(*_image, *_imageInfo);
+                   imageChanged(*image_, *imageInfo_);
                  },
                  [&](QString const& error) {
                    auto msg =
@@ -119,12 +119,12 @@ namespace dumageview::imagecontroller {
   //
 
   void ImageController::changeFrame(Direction direction) {
-    if (!_reader || !_imageInfo) return;
+    if (!reader_ || !imageInfo_) return;
 
-    int newFrame = math::mod(_imageInfo->frame + enumutil::cast(direction),
-                             _imageInfo->numFrames);
+    int newFrame = math::mod(imageInfo_->frame + enumutil::cast(direction),
+                             imageInfo_->numFrames);
 
-    bool jumpOK = _reader->jumpToImage(newFrame);
+    bool jumpOK = reader_->jumpToImage(newFrame);
     if (!jumpOK) {
       log::warn("Could not jump to new frame: {}", newFrame);
       return;
@@ -135,12 +135,12 @@ namespace dumageview::imagecontroller {
         log::warn("Could not read frame {}: {}", newFrame, conv::str(error));
       },
       [&](OpenSuccess) {
-        DUMAGEVIEW_ASSERT(_image);
-        DUMAGEVIEW_ASSERT(_imageInfo);
-        imageChanged(*_image, *_imageInfo);
+        DUMAGEVIEW_ASSERT(image_);
+        DUMAGEVIEW_ASSERT(imageInfo_);
+        imageChanged(*image_, *imageInfo_);
       });
 
-    std::visit(handler, tryRead(*_reader, *_imageInfo));
+    std::visit(handler, tryRead(*reader_, *imageInfo_));
   }
 
   void ImageController::nextFrame() {
@@ -156,9 +156,9 @@ namespace dumageview::imagecontroller {
   //
 
   void ImageController::changeWithinDir(Direction direction) {
-    if (!_dirInfo) return;
+    if (!dirInfo_) return;
 
-    auto& set = _dirInfo->set;
+    auto& set = dirInfo_->set;
 
     auto wrapIndex = [&](int index) {
       return math::mod(index, set.size());
@@ -176,22 +176,22 @@ namespace dumageview::imagecontroller {
       return iter;
     };
 
-    int nextIndex = wrapIndex(_dirInfo->index + enumutil::cast(direction));
-    auto nextIter = wrapIter(_dirInfo->current);
+    int nextIndex = wrapIndex(dirInfo_->index + enumutil::cast(direction));
+    auto nextIter = wrapIter(dirInfo_->current);
 
-    while (nextIter != _dirInfo->current) {
-      auto path = _dirInfo->path / *nextIter;
+    while (nextIter != dirInfo_->current) {
+      auto path = dirInfo_->path / *nextIter;
       auto result = tryOpen(conv::qstr(path.string()));
 
       if (std::holds_alternative<OpenSuccess>(result)) {
-        DUMAGEVIEW_ASSERT(_image);
-        DUMAGEVIEW_ASSERT(_imageInfo);
+        DUMAGEVIEW_ASSERT(image_);
+        DUMAGEVIEW_ASSERT(imageInfo_);
 
-        _dirInfo->index = nextIndex;
-        _dirInfo->current = nextIter;
+        dirInfo_->index = nextIndex;
+        dirInfo_->current = nextIter;
         updateImageDirInfo();
 
-        imageChanged(*_image, *_imageInfo);
+        imageChanged(*image_, *imageInfo_);
         return;
       }
 
@@ -222,17 +222,17 @@ namespace dumageview::imagecontroller {
   }
 
   void ImageController::loadDir() {
-    DUMAGEVIEW_ASSERT(_imageInfo);
+    DUMAGEVIEW_ASSERT(imageInfo_);
 
-    fs::path filePath = conv::str(_imageInfo->filePath);
+    fs::path filePath = conv::str(imageInfo_->filePath);
     auto dirPath = filePath.parent_path();
 
-    _dirInfo = DirInfo{};
-    _dirInfo->path = dirPath;
+    dirInfo_ = DirInfo{};
+    dirInfo_->path = dirPath;
 
     auto handleError = [&](auto const& error) {
       log::error("Error reading directory {}: {}", dirPath, error.what());
-      _dirInfo.reset();
+      dirInfo_.reset();
     };
 
     try {
@@ -247,22 +247,22 @@ namespace dumageview::imagecontroller {
         });
         boost::to_lower(ext, std::locale::classic());
 
-        if (auto it = _validExtensions.find(ext); it == _validExtensions.end())
+        if (auto it = validExtensions_.find(ext); it == validExtensions_.end())
           continue;
 
-        _dirInfo->set.insert(p.filename());
+        dirInfo_->set.insert(p.filename());
       }
 
       // find current file for index
       auto fileName = filePath.filename();
-      _dirInfo->current = _dirInfo->set.find(fileName);
+      dirInfo_->current = dirInfo_->set.find(fileName);
 
-      if (_dirInfo->current == _dirInfo->set.end())
+      if (dirInfo_->current == dirInfo_->set.end())
         throw Error(fmt::format("could not find {} in directory", fileName));
 
       // O(n) to find index, but we did just iterate through the dir
-      auto index = std::distance(_dirInfo->set.begin(), _dirInfo->current);
-      _dirInfo->index = boost::numeric_cast<int>(index);
+      auto index = std::distance(dirInfo_->set.begin(), dirInfo_->current);
+      dirInfo_->index = boost::numeric_cast<int>(index);
     } catch (fs::filesystem_error const& e) {
       handleError(e);
     } catch (Error const& e) {
@@ -271,12 +271,12 @@ namespace dumageview::imagecontroller {
   }
 
   void ImageController::updateImageDirInfo() {
-    if (!_dirInfo) return;
+    if (!dirInfo_) return;
 
-    DUMAGEVIEW_ASSERT(_imageInfo);
+    DUMAGEVIEW_ASSERT(imageInfo_);
 
-    _imageInfo->dirIndex = _dirInfo->index;
-    _imageInfo->dirSize = boost::numeric_cast<int>(_dirInfo->set.size());
+    imageInfo_->dirIndex = dirInfo_->index;
+    imageInfo_->dirSize = boost::numeric_cast<int>(dirInfo_->set.size());
   }
 
   //
@@ -286,13 +286,13 @@ namespace dumageview::imagecontroller {
   void ImageController::saveImage(QString const& path) {
     DUMAGEVIEW_LOG_DEBUG("Saving {}...", conv::str(path));
 
-    if (!_image) {
+    if (!image_) {
       log::warn("no image to save");
       return;
     }
 
     QImageWriter writer(path);
-    bool writeOK = writer.write(*_image);
+    bool writeOK = writer.write(*image_);
 
     if (!writeOK) {
       saveFailed(
@@ -304,11 +304,11 @@ namespace dumageview::imagecontroller {
   }
 
   void ImageController::closeImage() {
-    _image.reset();
-    _imageInfo.reset();
-    _dirInfo.reset();
+    image_.reset();
+    imageInfo_.reset();
+    dirInfo_.reset();
 
-    _reader.reset();
+    reader_.reset();
 
     imageRemoved();
   }
@@ -317,14 +317,14 @@ namespace dumageview::imagecontroller {
   // Extra info
   //
 
-  FileExtensionSet const& ImageController::validFileExtensions() const {
+  FileExtensionSet const& ImageController::getValidFileExtensions() const {
     // TODO: maybe make this list depend on available plugins
-    return _validExtensions;
+    return validExtensions_;
   }
 
-  QString ImageController::dialogDir() const {
-    if (_dirInfo)
-      return conv::qstr(_dirInfo->path.string());
+  QString ImageController::getDialogDir() const {
+    if (dirInfo_)
+      return conv::qstr(dirInfo_->path.string());
     else
       return QDir::currentPath();
   }

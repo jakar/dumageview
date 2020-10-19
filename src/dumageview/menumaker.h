@@ -34,12 +34,12 @@ namespace dumageview {
     // Public data access
     //
 
-    ActionSet& actions() {
-      return _actions;
+    ActionSet& getActions() {
+      return actions_;
     }
 
-    QMenu& contextMenu() {
-      return _contextMenu;
+    QMenu& getContextMenu() {
+      return contextMenu_;
     }
 
    private:
@@ -47,15 +47,15 @@ namespace dumageview {
 
     void setupContextMenu();
 
-    actionset::RefList imageActions();
+    actionset::RefList getImageActions();
 
     //
     // Private data
     //
 
-    ActionSet _actions;
+    ActionSet actions_;
 
-    QMenu _contextMenu;
+    QMenu contextMenu_;
   };
 }
 

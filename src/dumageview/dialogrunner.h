@@ -25,7 +25,7 @@ namespace dumageview {
     template<class A>
     using Handler = std::function<void(A)>;
 
-    DialogRunner(QDialog* dialog_, QObject* parent_, bool ownDialog = true);
+    DialogRunner(QDialog* dialog, QObject* parent, bool ownDialog = true);
 
     virtual ~DialogRunner();
 
@@ -41,12 +41,12 @@ namespace dumageview {
      */
     template<class H>
     void safeExec(H&& handler) {
-      _finishHandler = std::forward<H>(handler);
+      finishHandler_ = std::forward<H>(handler);
       safeExec();
     }
 
-    QDialog* dialog() const {
-      return _dialog;
+    QDialog* getDialog() const {
+      return dialog_;
     }
 
    protected:
@@ -59,9 +59,9 @@ namespace dumageview {
     virtual void cleanup();
 
    private:
-    QDialog* _dialog;
-    bool _deleteDialogWhenFinished;
-    Handler<int> _finishHandler = [](int) {};
+    QDialog* dialog_;
+    bool deleteDialogWhenFinished_;
+    Handler<int> finishHandler_ = [](int) {};
   };
 }
 

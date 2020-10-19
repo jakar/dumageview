@@ -45,8 +45,8 @@ namespace dumageview::imagerenderer::detail {
   ImageRenderer::ImageRenderer(
     ImageWidget& widget,
     QMetaObject::Connection&& contextDestroyConnection)
-      : _widget(widget),
-        _contextDestroyConnection(std::move(contextDestroyConnection)) {
+      : widget_(widget),
+        contextDestroyConnection_(std::move(contextDestroyConnection)) {
     auto* context = QOpenGLContext::currentContext();
     if (!context) {
       throw Error("Null context returned.");
@@ -67,73 +67,73 @@ namespace dumageview::imagerenderer::detail {
                            }
                          }());
 
-    _gl = context->versionFunctions<QOpenGLFunctions_2_1>();
-    if (!_gl) {
+    gl_ = context->versionFunctions<QOpenGLFunctions_2_1>();
+    if (!gl_) {
       throw Error(
         "OpenGL functions "
         "(compatible with version 2.1) not available.");
     }
 
-    _gl->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    gl_->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-    _gl->glEnable(GL_BLEND);
-    _gl->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    gl_->glEnable(GL_BLEND);
+    gl_->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   }
 
   ImageRenderer::~ImageRenderer() {
     DUMAGEVIEW_LOG_TRACE("this = {}", this);
     removeImage();
-    qtutil::disconnect(_contextDestroyConnection);
+    qtutil::disconnect(contextDestroyConnection_);
   }
 
   //
   // Image management
   //
 
-  void ImageRenderer::setImage(QImage image_) {
-    auto guard = contextGuard(_widget);
+  void ImageRenderer::setImage(QImage image) {
+    auto guard = contextGuard(widget_);
 
     // TODO: Test against GL_MAX_TEXTURE_SIZE
-    _imageState.reset(
-      new ImageState{image_, QOpenGLTexture{image_}, ZoomToFitView{}});
+    imageState_.reset(
+      new ImageState{image, QOpenGLTexture{image}, ZoomToFitView{}});
 
-    auto& tex = _imageState->texture;
+    auto& tex = imageState_->texture;
     tex.setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
     tex.setMagnificationFilter(QOpenGLTexture::Linear);
 
     tex.setBorderColor(0.0f, 0.0f, 0.0f, 1.0f);
     tex.setWrapMode(QOpenGLTexture::ClampToBorder);
 
-    _gl->glEnable(GL_TEXTURE_2D);
+    gl_->glEnable(GL_TEXTURE_2D);
   }
 
   void ImageRenderer::removeImage() {
-    auto guard = contextGuard(_widget);
-    _imageState.reset();
-    _gl->glDisable(GL_TEXTURE_2D);
+    auto guard = contextGuard(widget_);
+    imageState_.reset();
+    gl_->glDisable(GL_TEXTURE_2D);
   }
 
   //
   // Convenience accessor-like functions
   //
 
-  glm::dvec2 ImageRenderer::imageSize() const {
-    DUMAGEVIEW_ASSERT(_imageState);
-    return conv::dvec(_imageState->image.size());
+  glm::dvec2 ImageRenderer::getImageSize() const {
+    DUMAGEVIEW_ASSERT(imageState_);
+    return conv::dvec(imageState_->image.size());
   }
 
-  glm::dvec2 ImageRenderer::screenSize() const {
-    return conv::dvec(_widget.size());
+  glm::dvec2 ImageRenderer::getScreenSize() const {
+    return conv::dvec(widget_.size());
   }
 
-  SizeInfo ImageRenderer::sizeInfo() const {
-    DUMAGEVIEW_ASSERT(_imageState);
-    return {imageSize(), screenSize()};
+  SizeInfo ImageRenderer::getSizeInfo() const {
+    DUMAGEVIEW_ASSERT(imageState_);
+    return {getImageSize(), getScreenSize()};
   }
 
-  ViewMod<View> ImageRenderer::viewMod() const {
-    DUMAGEVIEW_ASSERT(_imageState);
-    return ViewMod(_imageState->view, sizeInfo());
+  ViewMod<View> ImageRenderer::getViewMod() const {
+    DUMAGEVIEW_ASSERT(imageState_);
+    return ViewMod(imageState_->view, getSizeInfo());
   }
 
   //
@@ -141,38 +141,38 @@ namespace dumageview::imagerenderer::detail {
   //
 
   void ImageRenderer::move(QPoint const& dPos) {
-    if (!_imageState) return;
+    if (!imageState_) return;
 
-    auto vm = viewMod();
+    auto vm = getViewMod();
     vm.modify([&](auto& v) {
       v.position += conv::dvec(dPos);
     });
-    _imageState->view = vm.normalize().view();
+    imageState_->view = vm.normalize().getView();
   }
 
   void ImageRenderer::zoomRel(int steps, QPointF const& pos) {
-    if (!_imageState) return;
+    if (!imageState_) return;
 
-    auto vm = viewMod().reified();
-    vm.setZoom(vm.view().scale * math::ipow(zoomFactor, steps),
+    auto vm = getViewMod().reified();
+    vm.setZoom(vm.getView().scale * math::ipow(zoomFactor, steps),
                conv::dvec(pos));
 
-    _imageState->view = vm.view();
+    imageState_->view = vm.getView();
   }
 
   void ImageRenderer::zoomAbs(double scale, QPointF const& pos) {
-    if (!_imageState) return;
+    if (!imageState_) return;
 
-    auto vm = viewMod().reified();
+    auto vm = getViewMod().reified();
     vm.setZoom(scale, conv::dvec(pos));
 
-    _imageState->view = vm.view();
+    imageState_->view = vm.getView();
   }
 
   void ImageRenderer::zoomToFit() {
-    if (!_imageState) return;
+    if (!imageState_) return;
 
-    _imageState->view = ZoomToFitView{};
+    imageState_->view = ZoomToFitView{};
   }
 
   //
@@ -180,46 +180,46 @@ namespace dumageview::imagerenderer::detail {
   //
 
   void ImageRenderer::resize(int w, int h) {
-    DUMAGEVIEW_ASSERT(w == _widget.width());
-    DUMAGEVIEW_ASSERT(h == _widget.height());
+    DUMAGEVIEW_ASSERT(w == widget_.width());
+    DUMAGEVIEW_ASSERT(h == widget_.height());
 
-    _gl->glViewport(0, 0, w, h);
+    gl_->glViewport(0, 0, w, h);
 
-    _gl->glMatrixMode(GL_PROJECTION);
-    _gl->glLoadIdentity();
-    _gl->glOrtho(0.0, w, h, 0.0, -1.0, 1.0);
+    gl_->glMatrixMode(GL_PROJECTION);
+    gl_->glLoadIdentity();
+    gl_->glOrtho(0.0, w, h, 0.0, -1.0, 1.0);
 
-    _gl->glMatrixMode(GL_MODELVIEW);
+    gl_->glMatrixMode(GL_MODELVIEW);
 
-    if (_imageState) _imageState->view = viewMod().normalize().view();
+    if (imageState_) imageState_->view = getViewMod().normalize().getView();
   }
 
   void ImageRenderer::draw() {
-    _gl->glClear(GL_COLOR_BUFFER_BIT);
+    gl_->glClear(GL_COLOR_BUFFER_BIT);
 
-    if (!_imageState) return;
+    if (!imageState_) return;
 
-    auto transform = viewMod().imageToScreenMatrix();
-    _gl->glLoadMatrixd(&transform[0][0]);
+    auto transform = getViewMod().imageToScreenMatrix();
+    gl_->glLoadMatrixd(&transform[0][0]);
 
-    _gl->glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    _imageState->texture.bind();
+    gl_->glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    imageState_->texture.bind();
 
-    glm::dvec2 rectSize = imageSize();
-    _gl->glBegin(GL_POLYGON);
+    glm::dvec2 rectSize = getImageSize();
+    gl_->glBegin(GL_POLYGON);
 
-    _gl->glTexCoord2d(0.0, 0.0);
-    _gl->glVertex2d(0.0, 0.0);
+    gl_->glTexCoord2d(0.0, 0.0);
+    gl_->glVertex2d(0.0, 0.0);
 
-    _gl->glTexCoord2d(1.0, 0.0);
-    _gl->glVertex2d(rectSize.x, 0.0);
+    gl_->glTexCoord2d(1.0, 0.0);
+    gl_->glVertex2d(rectSize.x, 0.0);
 
-    _gl->glTexCoord2d(1.0, 1.0);
-    _gl->glVertex2d(rectSize.x, rectSize.y);
+    gl_->glTexCoord2d(1.0, 1.0);
+    gl_->glVertex2d(rectSize.x, rectSize.y);
 
-    _gl->glTexCoord2d(0.0, 1.0);
-    _gl->glVertex2d(0.0, rectSize.y);
+    gl_->glTexCoord2d(0.0, 1.0);
+    gl_->glVertex2d(0.0, rectSize.y);
 
-    _gl->glEnd();
+    gl_->glEnd();
   }
 }

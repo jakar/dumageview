@@ -21,12 +21,12 @@ namespace dumageview::log {
 
   LoggerPtr initAppLogger();
 
-  inline char const* appLoggerName() {
+  inline char const* getAppLoggerName() {
     return "dumageview";
   }
 
-  inline LoggerPtr appLogger() {
-    auto logger = spdlog::get(appLoggerName());
+  inline LoggerPtr getAppLogger() {
+    auto logger = spdlog::get(getAppLoggerName());
     DUMAGEVIEW_ASSERT(logger);
     return logger;
   }
@@ -57,7 +57,7 @@ namespace dumageview::log {
 
   template<class... As>
   void log(Level level, char const* message, As&&... args) {
-    log(level, appLogger(), message, std::forward<As>(args)...);
+    log(level, getAppLogger(), message, std::forward<As>(args)...);
   }
 
   template<class... As>
@@ -116,7 +116,7 @@ namespace dumageview::log {
       traceMacroHelper(func,
                        file,
                        line,
-                       appLogger(),
+                       getAppLogger(),
                        msg,
                        std::forward<As>(args)...);
     }

@@ -19,128 +19,128 @@ namespace {
 }
 
 namespace dumageview {
-  AppController::AppController(cmdline::Args const& cmdArgs_)
-      : QObject{}, _menuMaker{}, _imageController{},
-        _mainWindow(_menuMaker.actions()) {
+  AppController::AppController(cmdline::Args const& cmdArgs)
+      : QObject{}, menuMaker_{}, imageController_{},
+        mainWindow_(menuMaker_.getActions()) {
     setupConnections();
 
-    menuMaker().addActions(mainWindow());
-    menuMaker().setupMenuBar(mainWindow().menuBar());
+    getMenuMaker().addActions(getMainWindow());
+    getMenuMaker().setupMenuBar(getMainWindow().menuBar());
 
-    if (cmdArgs_.imagePath) {
-      imageController().openImage(conv::qstr(cmdArgs_.imagePath->string()));
-      mainWindow().adjustSize();
+    if (cmdArgs.imagePath) {
+      getImageController().openImage(conv::qstr(cmdArgs.imagePath->string()));
+      getMainWindow().adjustSize();
     }
 
-    mainWindow().show();
-    mainWindow().centerOnScreen();
+    getMainWindow().show();
+    getMainWindow().centerOnScreen();
   }
 
   void AppController::setupConnections() {
     // -- close / quit actions
 
-    qtutil::connect(&actions().close,
+    qtutil::connect(&getActions().close,
                     &QAction::triggered,
-                    &mainWindow(),
+                    &getMainWindow(),
                     &MainWindow::close);
-    qtutil::connect(&actions().quit,
+    qtutil::connect(&getActions().quit,
                     &QAction::triggered,
-                    &Application::singletonInstance(),
+                    &Application::getSingletonInstance(),
                     &Application::closeAllWindows);
 
     // -- open / save actions
 
-    qtutil::connect(&actions().open,
+    qtutil::connect(&getActions().open,
                     &QAction::triggered,
                     this,
                     &AppController::openImage);
-    qtutil::connect(&actions().save,
+    qtutil::connect(&getActions().save,
                     &QAction::triggered,
                     this,
                     &AppController::saveImage);
-    qtutil::connect(&actions().prevImage,
+    qtutil::connect(&getActions().prevImage,
                     &QAction::triggered,
-                    &imageController(),
+                    &getImageController(),
                     &ImageController::prevImage);
-    qtutil::connect(&actions().nextImage,
+    qtutil::connect(&getActions().nextImage,
                     &QAction::triggered,
-                    &imageController(),
+                    &getImageController(),
                     &ImageController::nextImage);
-    qtutil::connect(&actions().prevFrame,
+    qtutil::connect(&getActions().prevFrame,
                     &QAction::triggered,
-                    &imageController(),
+                    &getImageController(),
                     &ImageController::prevFrame);
-    qtutil::connect(&actions().nextFrame,
+    qtutil::connect(&getActions().nextFrame,
                     &QAction::triggered,
-                    &imageController(),
+                    &getImageController(),
                     &ImageController::nextFrame);
 
     // -- window actions
 
-    qtutil::connect(&actions().showMenuBar,
+    qtutil::connect(&getActions().showMenuBar,
                     &QAction::toggled,
-                    mainWindow().menuBar(),
+                    getMainWindow().menuBar(),
                     &QMenuBar::setVisible);
-    qtutil::connect(&actions().fullScreen,
+    qtutil::connect(&getActions().fullScreen,
                     &QAction::triggered,
-                    &mainWindow(),
+                    &getMainWindow(),
                     &MainWindow::setFullScreen);
-    qtutil::connect(&actions().exitFullScreen,
+    qtutil::connect(&getActions().exitFullScreen,
                     &QAction::triggered,
-                    &mainWindow(),
+                    &getMainWindow(),
                     &MainWindow::exitFullScreen);
 
     // -- zoom actions
 
-    qtutil::connect(&actions().zoomIn,
+    qtutil::connect(&getActions().zoomIn,
                     &QAction::triggered,
-                    &imageWidget(),
+                    &getImageWidget(),
                     &ImageWidget::zoomIn);
-    qtutil::connect(&actions().zoomOut,
+    qtutil::connect(&getActions().zoomOut,
                     &QAction::triggered,
-                    &imageWidget(),
+                    &getImageWidget(),
                     &ImageWidget::zoomOut);
-    qtutil::connect(&actions().zoomOriginal,
+    qtutil::connect(&getActions().zoomOriginal,
                     &QAction::triggered,
-                    &imageWidget(),
+                    &getImageWidget(),
                     &ImageWidget::zoomOriginal);
-    qtutil::connect(&actions().zoomToFit,
+    qtutil::connect(&getActions().zoomToFit,
                     &QAction::triggered,
-                    &imageWidget(),
+                    &getImageWidget(),
                     &ImageWidget::zoomToFit);
 
     // -- image controller signals
 
-    qtutil::connect(&imageController(),
+    qtutil::connect(&getImageController(),
                     &ImageController::imageChanged,
-                    &mainWindow(),
+                    &getMainWindow(),
                     &MainWindow::resetImage);
-    qtutil::connect(&imageController(),
+    qtutil::connect(&getImageController(),
                     &ImageController::imageChanged,
-                    &menuMaker(),
+                    &getMenuMaker(),
                     &MenuMaker::enableImageActions);
     qtutil::connect(
-      &imageController(),
+      &getImageController(),
       &ImageController::openFailed,
-      &mainWindow(),
+      &getMainWindow(),
       [this](QString const& msg) {
-        MessageBoxRunner::critical(&mainWindow(), "Open Failed", msg);
+        MessageBoxRunner::critical(&getMainWindow(), "Open Failed", msg);
       });
     qtutil::connect(
-      &imageController(),
+      &getImageController(),
       &ImageController::saveFailed,
-      &mainWindow(),
+      &getMainWindow(),
       [this](QString const& msg) {
-        MessageBoxRunner::critical(&mainWindow(), "Save Failed", msg);
+        MessageBoxRunner::critical(&getMainWindow(), "Save Failed", msg);
       });
 
     // -- image widget signals
 
-    qtutil::connect(&imageWidget(),
+    qtutil::connect(&getImageWidget(),
                     &ImageWidget::contextMenuWanted,
-                    &menuMaker(),
+                    &getMenuMaker(),
                     [this](QPoint const& pos) {
-                      menuMaker().contextMenu().popup(pos);
+                      getMenuMaker().getContextMenu().popup(pos);
                     });
   }
 
@@ -150,7 +150,7 @@ namespace dumageview {
 
   QString AppController::dialogFilter() const {
     using ES = FileDialogRunner::ExtensionSet;
-    auto const& exts = imageController().validFileExtensions();
+    auto const& exts = getImageController().getValidFileExtensions();
     auto imgFilter = FileDialogRunner::makeSelectionFilter(
       "Images"s,
       ES(std::begin(exts), std::end(exts)));
@@ -159,25 +159,25 @@ namespace dumageview {
 
   void AppController::openImage() {
     auto handler = [this](QString path) {
-      if (!path.isEmpty()) imageController().openImage(path);
+      if (!path.isEmpty()) getImageController().openImage(path);
     };
 
     FileDialogRunner::getOpenFileName(handler,
-                                      &mainWindow(),
+                                      &getMainWindow(),
                                       "Open Image",
-                                      imageController().dialogDir(),
+                                      getImageController().getDialogDir(),
                                       dialogFilter());
   }
 
   void AppController::saveImage() {
     auto handler = [this](QString path) {
-      if (!path.isEmpty()) imageController().saveImage(path);
+      if (!path.isEmpty()) getImageController().saveImage(path);
     };
 
     FileDialogRunner::getSaveFileName(handler,
-                                      &mainWindow(),
+                                      &getMainWindow(),
                                       "Save Image",
-                                      imageController().dialogDir(),
+                                      getImageController().getDialogDir(),
                                       dialogFilter());
   }
 }
