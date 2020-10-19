@@ -11,7 +11,8 @@
 #include <utility>
 
 namespace dumageview {
-  MenuMaker::MenuMaker() : QObject{}, actions_{} {
+  MenuMaker::MenuMaker()
+      : QObject{}, actions_{} {
     setupActions();
     setupContextMenu();
     disableImageActions();
@@ -117,13 +118,15 @@ namespace dumageview {
   }
 
   void MenuMaker::enableImageActions() {
-    for (QAction& action : getImageActions())
+    for (QAction& action : getImageActions()) {
       action.setEnabled(true);
+    }
   }
 
   void MenuMaker::disableImageActions() {
-    for (QAction& action : getImageActions())
+    for (QAction& action : getImageActions()) {
       action.setEnabled(false);
+    }
   }
 
   actionset::RefList MenuMaker::getImageActions() {

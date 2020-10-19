@@ -6,7 +6,8 @@
 #include <string>
 
 namespace dumageview::cmdline {
-  Parser::Parser(int argc, char** argv) : parser_(argc, argv) {
+  Parser::Parser(int argc, char** argv)
+      : parser_(argc, argv) {
     generalOpts_.add_options()("help,h", "display help message");
 
     hiddenOpts_.add_options()("input", po::value<std::string>(), "input image");

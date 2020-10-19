@@ -19,14 +19,13 @@ namespace dumageview {
     using StandardButton = QMessageBox::StandardButton;
     using StandardButtons = QMessageBox::StandardButtons;
 
-    void runNewMessageBox(
-      DialogRunner::Handler<StandardButton> const& resultHandler,
-      QWidget* parent,
-      QMessageBox::Icon icon,
-      QString const& title,
-      QString const& text,
-      StandardButtons buttons,
-      StandardButton defaultButton) {
+    void runNewMessageBox(DialogRunner::Handler<StandardButton> const& resultHandler,
+                          QWidget* parent,
+                          QMessageBox::Icon icon,
+                          QString const& title,
+                          QString const& text,
+                          StandardButtons buttons,
+                          StandardButton defaultButton) {
       // set up the buttons like the Qt source code does
       QMessageBox* msgBox =
         new QMessageBox{icon, title, text, QMessageBox::NoButton, parent};
@@ -42,14 +41,17 @@ namespace dumageview {
       while (mask <= QMessageBox::LastButton) {
         unsigned sbutton = buttons & mask;
         mask <<= 1;
-
-        if (!sbutton) continue;
+        if (!sbutton) {
+          continue;
+        }
 
         QPushButton* button =
           msgBox->addButton(static_cast<StandardButton>(sbutton));
 
         // Choose the first accept role as the default
-        if (msgBox->defaultButton()) continue;
+        if (msgBox->defaultButton()) {
+          continue;
+        }
 
         bool isAcceptRole =
           defaultButton == QMessageBox::NoButton
@@ -58,15 +60,18 @@ namespace dumageview {
         bool isDefault = defaultButton != QMessageBox::NoButton
                          && sbutton == static_cast<unsigned>(defaultButton);
 
-        if (isAcceptRole || isDefault) msgBox->setDefaultButton(button);
+        if (isAcceptRole || isDefault) {
+          msgBox->setDefaultButton(button);
+        }
       }
 
       auto execHandler = [msgBox](int result) -> StandardButton {
         // Qt converts NoButton to -1 and doesn't document it
-        if (result == -1)
+        if (result == -1) {
           return QMessageBox::Cancel;
-        else
+        } else {
           return msgBox->standardButton(msgBox->clickedButton());
+        }
       };
 
       MessageBoxRunner* runner = new MessageBoxRunner(msgBox, parent);
@@ -101,28 +106,19 @@ namespace dumageview {
                                   StandardButtons buttons,
                                   StandardButton defaultButton) {
     runNewMessageBox(resultHandler,
-                     parent,
-                     QMessageBox::Critical,
-                     title,
-                     text,
-                     buttons,
-                     defaultButton);
+                     parent, QMessageBox::Critical,
+                     title, text, buttons, defaultButton);
   }
 
-  void MessageBoxRunner::information(
-    Handler<StandardButton> const& resultHandler,
-    QWidget* parent,
-    QString const& title,
-    QString const& text,
-    StandardButtons buttons,
-    StandardButton defaultButton) {
+  void MessageBoxRunner::information(Handler<StandardButton> const& resultHandler,
+                                     QWidget* parent,
+                                     QString const& title,
+                                     QString const& text,
+                                     StandardButtons buttons,
+                                     StandardButton defaultButton) {
     runNewMessageBox(resultHandler,
-                     parent,
-                     QMessageBox::Information,
-                     title,
-                     text,
-                     buttons,
-                     defaultButton);
+                     parent, QMessageBox::Information,
+                     title, text, buttons, defaultButton);
   }
 
   void MessageBoxRunner::question(Handler<StandardButton> const& resultHandler,
@@ -132,12 +128,8 @@ namespace dumageview {
                                   StandardButtons buttons,
                                   StandardButton defaultButton) {
     runNewMessageBox(resultHandler,
-                     parent,
-                     QMessageBox::Question,
-                     title,
-                     text,
-                     buttons,
-                     defaultButton);
+                     parent, QMessageBox::Question,
+                     title, text, buttons, defaultButton);
   }
 
   void MessageBoxRunner::warning(Handler<StandardButton> const& resultHandler,
@@ -147,12 +139,8 @@ namespace dumageview {
                                  StandardButtons buttons,
                                  StandardButton defaultButton) {
     runNewMessageBox(resultHandler,
-                     parent,
-                     QMessageBox::Warning,
-                     title,
-                     text,
-                     buttons,
-                     defaultButton);
+                     parent, QMessageBox::Warning,
+                     title, text, buttons, defaultButton);
   }
 
   //
@@ -165,11 +153,7 @@ namespace dumageview {
                                   StandardButtons buttons,
                                   StandardButton defaultButton) {
     critical([](StandardButton) {},
-             parent,
-             title,
-             text,
-             buttons,
-             defaultButton);
+             parent, title, text, buttons, defaultButton);
   }
 
   void MessageBoxRunner::information(QWidget* parent,
@@ -178,11 +162,7 @@ namespace dumageview {
                                      StandardButtons buttons,
                                      StandardButton defaultButton) {
     information([](StandardButton) {},
-                parent,
-                title,
-                text,
-                buttons,
-                defaultButton);
+                parent, title, text, buttons, defaultButton);
   }
 
   void MessageBoxRunner::question(QWidget* parent,
@@ -191,11 +171,7 @@ namespace dumageview {
                                   StandardButtons buttons,
                                   StandardButton defaultButton) {
     question([](StandardButton) {},
-             parent,
-             title,
-             text,
-             buttons,
-             defaultButton);
+             parent, title, text, buttons, defaultButton);
   }
 
   void MessageBoxRunner::warning(QWidget* parent,
@@ -203,6 +179,7 @@ namespace dumageview {
                                  QString const& text,
                                  StandardButtons buttons,
                                  StandardButton defaultButton) {
-    warning([](StandardButton) {}, parent, title, text, buttons, defaultButton);
+    warning([](StandardButton) {},
+            parent, title, text, buttons, defaultButton);
   }
 }

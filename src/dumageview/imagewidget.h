@@ -40,7 +40,6 @@ namespace dumageview {
     QSize minimumSizeHint() const override;
 
    Q_SIGNALS:
-
     void imageLoadFailed(QString const& message);
 
     void contextMenuWanted(QPoint const& globalPos);

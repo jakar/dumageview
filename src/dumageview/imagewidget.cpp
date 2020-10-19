@@ -42,8 +42,9 @@ namespace dumageview {
   QSize ImageWidget::sizeHint() const {
     QRect screenRect = QApplication::desktop()->availableGeometry(this);
     auto partialScreen = screenRect.size() * 3 / 5;
-
-    if (!image_) return partialScreen;
+    if (!image_) {
+      return partialScreen;
+    }
 
     auto longDim =
       (math::aspectRatio(image_->size()) > math::aspectRatio(partialScreen))
@@ -76,8 +77,9 @@ namespace dumageview {
     image_ = image;
     activateZoomToFit();
 
-    if (renderer_) renderer_->setImage(image);
-
+    if (renderer_) {
+      renderer_->setImage(image);
+    }
     updateGeometry();
     update();
   }
@@ -86,8 +88,9 @@ namespace dumageview {
     image_.reset();
     deactivateZoomToFit();
 
-    if (renderer_) renderer_->removeImage();
-
+    if (renderer_) {
+      renderer_->removeImage();
+    }
     updateGeometry();
     update();
   }
@@ -105,8 +108,9 @@ namespace dumageview {
   }
 
   void ImageWidget::zoom(int steps, QPointF const& center) {
-    if (!renderer_) return;
-
+    if (!renderer_) {
+      return;
+    }
     deactivateZoomToFit();
     renderer_->zoomRel(steps, center);
 
@@ -114,8 +118,9 @@ namespace dumageview {
   }
 
   void ImageWidget::zoomOriginal() {
-    if (!renderer_) return;
-
+    if (!renderer_) {
+      return;
+    }
     deactivateZoomToFit();
     renderer_->zoomAbs(1.0, conv::qpointf(size()) * 0.5);
 
@@ -123,8 +128,9 @@ namespace dumageview {
   }
 
   void ImageWidget::zoomToFit() {
-    if (!renderer_) return;
-
+    if (!renderer_) {
+      return;
+    }
     activateZoomToFit();
     renderer_->zoomToFit();
 
@@ -158,12 +164,12 @@ namespace dumageview {
                                         &ImageWidget::cleanupGL);
 
       renderer_ = std::make_unique<ImageRenderer>(*this, std::move(connection));
-
-      if (image_) renderer_->setImage(*image_);
+      if (image_) {
+        renderer_->setImage(*image_);
+      }
     } catch (imagerenderer::Error const& error) {
       log::error("Could not initialize graphics: {}", error.what());
-      Application::getSingletonInstance().exit(
-        application::exitcode::glInitError);
+      Application::getSingletonInstance().exit(application::exitcode::glInitError);
     }
   }
 
@@ -257,7 +263,6 @@ namespace dumageview {
         renderer_->move(evt->pos() - *lastMousePos_);
         update();
       }
-
       lastMousePos_ = evt->pos();
     } else {
       Base::mouseMoveEvent(evt);

@@ -5,7 +5,9 @@
 
 namespace dumageview {
   DialogRunner::DialogRunner(QDialog* dialog, QObject* parent, bool ownDialog)
-      : QObject{parent}, dialog_{dialog}, deleteDialogWhenFinished_{ownDialog} {
+      : QObject{parent},
+        dialog_{dialog},
+        deleteDialogWhenFinished_{ownDialog} {
     DUMAGEVIEW_ASSERT(dialog_);
     qtutil::connect(dialog_, &QDialog::destroyed, this, &DialogRunner::cleanup);
   }

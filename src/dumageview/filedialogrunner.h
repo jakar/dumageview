@@ -42,7 +42,8 @@ namespace dumageview {
       QWidget* parent = nullptr,
       QString const& caption = QString{},
       QString const& dir = QString{},
-      QFileDialog::Options options = QFileDialog::ShowDirsOnly);
+      QFileDialog::Options options = QFileDialog::ShowDirsOnly
+    );
 
     static void getOpenFileName(Handler<QString> const& resultHandler,
                                 QWidget* parent = nullptr,

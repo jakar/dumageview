@@ -34,7 +34,8 @@ namespace dumageview {
       QString const& title,
       QString const& text,
       QMessageBox::StandardButtons buttons = QMessageBox::Ok,
-      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton);
+      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton
+    );
 
     static void information(
       Handler<QMessageBox::StandardButton> const& resultHandler,
@@ -42,7 +43,8 @@ namespace dumageview {
       QString const& title,
       QString const& text,
       QMessageBox::StandardButtons buttons = QMessageBox::Ok,
-      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton);
+      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton
+    );
 
     static void question(
       Handler<QMessageBox::StandardButton> const& resultHandler,
@@ -50,7 +52,8 @@ namespace dumageview {
       QString const& title,
       QString const& text,
       QMessageBox::StandardButtons buttons = QMessageBox::Ok,
-      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton);
+      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton
+    );
 
     static void warning(
       Handler<QMessageBox::StandardButton> const& resultHandler,
@@ -58,7 +61,8 @@ namespace dumageview {
       QString const& title,
       QString const& text,
       QMessageBox::StandardButtons buttons = QMessageBox::Ok,
-      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton);
+      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton
+    );
 
     //
     // Empty handler versions
@@ -69,34 +73,37 @@ namespace dumageview {
       QString const& title,
       QString const& text,
       QMessageBox::StandardButtons buttons = QMessageBox::Ok,
-      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton);
+      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton
+    );
 
     static void information(
       QWidget* parent,
       QString const& title,
       QString const& text,
       QMessageBox::StandardButtons buttons = QMessageBox::Ok,
-      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton);
+      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton
+    );
 
     static void question(
       QWidget* parent,
       QString const& title,
       QString const& text,
       QMessageBox::StandardButtons buttons = QMessageBox::Ok,
-      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton);
+      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton
+    );
 
     static void warning(
       QWidget* parent,
       QString const& title,
       QString const& text,
       QMessageBox::StandardButtons buttons = QMessageBox::Ok,
-      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton);
+      QMessageBox::StandardButton defaultButton = QMessageBox::NoButton
+    );
 
    protected:
     virtual void setupConnections() override;
 
-   private Q_SLOTS:
-
+   private:
     void handleResult(QAbstractButton* button);
   };
 }

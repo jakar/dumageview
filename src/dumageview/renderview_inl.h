@@ -29,10 +29,11 @@ namespace dumageview::renderview {
       ViewMod vm{rv, size_};
 
       for (auto const& dim : math::dimensions2D) {
-        if (dim(scaledImageSize) < dim(size_.screen))
+        if (dim(scaledImageSize) < dim(size_.screen)) {
           rv = vm.center(dim).getView();
-        else
+        } else {
           rv = vm.clamp(dim).getView();
+        }
       }
     });
 
@@ -89,7 +90,6 @@ namespace dumageview::renderview {
   inline auto ViewMod<ManualView>::center(math::Getter const& dim) -> ViewMod& {
     dim(getView().position) = dim(getSize().screen * 0.5)
                               - dim(getSize().image * getView().scale * 0.5);
-
     return *this;
   }
 
@@ -106,8 +106,7 @@ namespace dumageview::renderview {
   }
 
   inline auto ViewMod<ManualView>::setZoom(double scale,
-                                           glm::dvec2 const& screenFixed)
-    -> ViewMod& {
+                                           glm::dvec2 const& screenFixed) -> ViewMod& {
     // zoom around fixed point
     auto imageFixed = screenToImage(screenFixed);
     imageFixed = glm::clamp(imageFixed, glm::dvec2{0.0}, getSize().image);

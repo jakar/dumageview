@@ -52,11 +52,9 @@ namespace dumageview {
    protected:
     virtual void setupConnections();
 
-   protected Q_SLOTS:
+    virtual void cleanup();
 
     void unwindHandlers(int result);
-
-    virtual void cleanup();
 
    private:
     QDialog* dialog_;

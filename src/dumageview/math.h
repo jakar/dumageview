@@ -134,21 +134,22 @@ namespace dumageview::math {
   template<class Num, class Int>
   Num mod(Num n, Int m) {
     static_assert(std::is_integral_v<Int>);
-
     static_assert(std::is_integral_v<Num> || std::is_floating_point_v<Num>);
 
-    if (m <= 0) throw std::domain_error("modulus must be positive");
-
+    if (m <= 0) {
+      throw std::domain_error("modulus must be positive");
+    }
     Num mm = boost::numeric_cast<Num>(m);
 
     if constexpr (std::is_integral_v<Num>) {
       return ((n % mm) + mm) % mm;
     } else if constexpr (std::is_floating_point_v<Num>) {
       Num r = std::fmod(n, mm);
-      if (r < 0)
+      if (r < 0) {
         return r + mm;
-      else
+      } else {
         return r;
+      }
     } else {
       DUMAGEVIEW_ASSERT(false);
       return 0;

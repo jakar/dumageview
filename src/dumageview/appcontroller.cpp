@@ -125,14 +125,16 @@ namespace dumageview {
       &getMainWindow(),
       [this](QString const& msg) {
         MessageBoxRunner::critical(&getMainWindow(), "Open Failed", msg);
-      });
+      }
+    );
     qtutil::connect(
       &getImageController(),
       &ImageController::saveFailed,
       &getMainWindow(),
       [this](QString const& msg) {
         MessageBoxRunner::critical(&getMainWindow(), "Save Failed", msg);
-      });
+      }
+    );
 
     // -- image widget signals
 
@@ -153,13 +155,16 @@ namespace dumageview {
     auto const& exts = getImageController().getValidFileExtensions();
     auto imgFilter = FileDialogRunner::makeSelectionFilter(
       "Images"s,
-      ES(std::begin(exts), std::end(exts)));
+      ES(std::begin(exts), std::end(exts))
+    );
     return imgFilter + ";;All Files (*)";
   }
 
   void AppController::openImage() {
     auto handler = [this](QString path) {
-      if (!path.isEmpty()) getImageController().openImage(path);
+      if (!path.isEmpty()) {
+        getImageController().openImage(path);
+      }
     };
 
     FileDialogRunner::getOpenFileName(handler,
@@ -171,7 +176,9 @@ namespace dumageview {
 
   void AppController::saveImage() {
     auto handler = [this](QString path) {
-      if (!path.isEmpty()) getImageController().saveImage(path);
+      if (!path.isEmpty()) {
+        getImageController().saveImage(path);
+      }
     };
 
     FileDialogRunner::getSaveFileName(handler,

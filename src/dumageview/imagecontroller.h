@@ -60,7 +60,6 @@ namespace dumageview::imagecontroller {
     FileExtensionSet const& getValidFileExtensions() const;
 
    Q_SIGNALS:
-
     void imageChanged(QImage const& image, ImageInfo const& info);
     void imageRemoved();
 

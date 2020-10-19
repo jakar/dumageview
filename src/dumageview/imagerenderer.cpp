@@ -32,9 +32,7 @@ namespace dumageview::imagerenderer::detail {
 
     auto contextGuard(ImageWidget& widget) {
       widget.makeCurrent();
-      return ScopeGuard{[&] {
-        widget.doneCurrent();
-      }};
+      return ScopeGuard{[&] { widget.doneCurrent(); }};
     }
   }
 
@@ -52,26 +50,26 @@ namespace dumageview::imagerenderer::detail {
       throw Error("Null context returned.");
     }
 
-    DUMAGEVIEW_LOG_DEBUG("Using {} version {}.{} ({} Profile)",
-                         context->isOpenGLES() ? "OpenGL ES" : "OpenGL",
-                         context->format().majorVersion(),
-                         context->format().minorVersion(),
-                         [&] {
-                           switch (context->format().profile()) {
-                             case QSurfaceFormat::CoreProfile:
-                               return "Core";
-                             case QSurfaceFormat::CompatibilityProfile:
-                               return "Compatibility";
-                             default:
-                               return "No";
-                           }
-                         }());
+    DUMAGEVIEW_LOG_DEBUG(
+      "Using {} version {}.{} ({} Profile)",
+      context->isOpenGLES() ? "OpenGL ES" : "OpenGL",
+      context->format().majorVersion(),
+      context->format().minorVersion(),
+      [&] {
+        switch (context->format().profile()) {
+          case QSurfaceFormat::CoreProfile:
+            return "Core";
+          case QSurfaceFormat::CompatibilityProfile:
+            return "Compatibility";
+          default:
+            return "No";
+        }
+      }()
+    );
 
     gl_ = context->versionFunctions<QOpenGLFunctions_2_1>();
     if (!gl_) {
-      throw Error(
-        "OpenGL functions "
-        "(compatible with version 2.1) not available.");
+      throw Error("OpenGL functions (compatible with version 2.1) not available.");
     }
 
     gl_->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -95,7 +93,8 @@ namespace dumageview::imagerenderer::detail {
 
     // TODO: Test against GL_MAX_TEXTURE_SIZE
     imageState_.reset(
-      new ImageState{image, QOpenGLTexture{image}, ZoomToFitView{}});
+      new ImageState{image, QOpenGLTexture{image}, ZoomToFitView{}}
+    );
 
     auto& tex = imageState_->texture;
     tex.setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
@@ -141,8 +140,9 @@ namespace dumageview::imagerenderer::detail {
   //
 
   void ImageRenderer::move(QPoint const& dPos) {
-    if (!imageState_) return;
-
+    if (!imageState_) {
+      return;
+    }
     auto vm = getViewMod();
     vm.modify([&](auto& v) {
       v.position += conv::dvec(dPos);
@@ -151,8 +151,9 @@ namespace dumageview::imagerenderer::detail {
   }
 
   void ImageRenderer::zoomRel(int steps, QPointF const& pos) {
-    if (!imageState_) return;
-
+    if (!imageState_) {
+      return;
+    }
     auto vm = getViewMod().reified();
     vm.setZoom(vm.getView().scale * math::ipow(zoomFactor, steps),
                conv::dvec(pos));
@@ -161,8 +162,9 @@ namespace dumageview::imagerenderer::detail {
   }
 
   void ImageRenderer::zoomAbs(double scale, QPointF const& pos) {
-    if (!imageState_) return;
-
+    if (!imageState_) {
+      return;
+    }
     auto vm = getViewMod().reified();
     vm.setZoom(scale, conv::dvec(pos));
 
@@ -170,8 +172,9 @@ namespace dumageview::imagerenderer::detail {
   }
 
   void ImageRenderer::zoomToFit() {
-    if (!imageState_) return;
-
+    if (!imageState_) {
+      return;
+    }
     imageState_->view = ZoomToFitView{};
   }
 
@@ -191,14 +194,16 @@ namespace dumageview::imagerenderer::detail {
 
     gl_->glMatrixMode(GL_MODELVIEW);
 
-    if (imageState_) imageState_->view = getViewMod().normalize().getView();
+    if (imageState_) {
+      imageState_->view = getViewMod().normalize().getView();
+    }
   }
 
   void ImageRenderer::draw() {
     gl_->glClear(GL_COLOR_BUFFER_BIT);
-
-    if (!imageState_) return;
-
+    if (!imageState_) {
+      return;
+    }
     auto transform = getViewMod().imageToScreenMatrix();
     gl_->glLoadMatrixd(&transform[0][0]);
 

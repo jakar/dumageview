@@ -47,7 +47,8 @@ namespace dumageview::renderview {
   template<class Derived>
   class BaseViewMod {
    public:
-    BaseViewMod(View const& v, SizeInfo const& s) : view_{v}, size_{s} {
+    BaseViewMod(View const& v, SizeInfo const& s)
+        : view_{v}, size_{s} {
     }
     BaseViewMod(BaseViewMod const&) = default;
 
@@ -98,7 +99,8 @@ namespace dumageview::renderview {
    public:
     using Base = BaseViewMod<ViewMod<ManualView>>;
 
-    ViewMod(ManualView const& v, SizeInfo const& s) : Base(v, s) {
+    ViewMod(ManualView const& v, SizeInfo const& s)
+        : Base(v, s) {
     }
     ViewMod(ViewMod const&) = default;
 

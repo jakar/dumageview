@@ -17,11 +17,10 @@ namespace {
 
 namespace dumageview::application {
   Application::Application(int& argc, char** argv)
-      : QApplication(argc, argv), log_(log::initAppLogger()) {
+      : QApplication(argc, argv),
+        log_(log::initAppLogger()) {
     DUMAGEVIEW_LOG_TRACE(log_);
-
     cmdline::Parser cmdParser{argc, argv};
-
     try {
       cmdArgs_ = cmdParser.parse();
     } catch (cmdline::Error const& ex) {
