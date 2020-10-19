@@ -1,43 +1,29 @@
 #ifndef DUMAGEVIEW_SCOPEGUARD_H_
 #define DUMAGEVIEW_SCOPEGUARD_H_
 
-#include <utility>
 #include <type_traits>
+#include <utility>
 
-namespace dumageview
-{
+namespace dumageview {
   template<class F>
-  class [[nodiscard]] ScopeGuard
-  {
+  class [[nodiscard]] ScopeGuard {
    public:
-    explicit ScopeGuard(F const& handler) noexcept
-    :
-      _handler(handler)
-    {
+    explicit ScopeGuard(F const& handler) noexcept : _handler(handler) {
     }
 
-    explicit ScopeGuard(F&& handler) noexcept
-    :
-      _handler(std::move(handler))
-    {
+    explicit ScopeGuard(F && handler) noexcept : _handler(std::move(handler)) {
     }
 
-    ScopeGuard(ScopeGuard&& rhs) noexcept
-    :
-      _handler(std::move(rhs._handler)),
-      _released(rhs._released)
-    {
+    ScopeGuard(ScopeGuard && rhs) noexcept
+        : _handler(std::move(rhs._handler)), _released(rhs._released) {
       rhs.release();
     }
 
-    ~ScopeGuard() noexcept
-    {
-      if (!_released)
-        _handler();
+    ~ScopeGuard() noexcept {
+      if (!_released) _handler();
     }
 
-    void release() noexcept
-    {
+    void release() noexcept {
       _released = true;
     }
 
@@ -50,7 +36,8 @@ namespace dumageview
     bool _released = false;
   };
 
-  template<class F> ScopeGuard(F) -> ScopeGuard<std::decay_t<F>>;
+  template<class F>
+  ScopeGuard(F) -> ScopeGuard<std::decay_t<F>>;
 }
 
 #endif  // DUMAGEVIEW_SCOPEGUARD_H_

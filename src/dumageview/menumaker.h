@@ -13,14 +13,11 @@
 class QMenuBar;
 class QWidget;
 
-namespace dumageview
-{
-  class MenuMaker : public QObject
-  {
+namespace dumageview {
+  class MenuMaker : public QObject {
     Q_OBJECT;
 
    public:
-
     explicit MenuMaker();
 
     virtual ~MenuMaker() = default;
@@ -37,12 +34,15 @@ namespace dumageview
     // Public data access
     //
 
-    ActionSet& actions() { return _actions; }
+    ActionSet& actions() {
+      return _actions;
+    }
 
-    QMenu& contextMenu() { return _contextMenu; }
+    QMenu& contextMenu() {
+      return _contextMenu;
+    }
 
    private:
-
     void setupActions();
 
     void setupContextMenu();

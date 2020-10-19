@@ -3,18 +3,17 @@
 
 #include "dumageview/assert.h"
 
-#include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
+#include <spdlog/spdlog.h>
 
 #include <boost/current_function.hpp>
 
 #include <memory>
 #include <string>
-#include <utility>
 #include <type_traits>
+#include <utility>
 
-namespace dumageview::log
-{
+namespace dumageview::log {
   using namespace std::literals;
 
   using LoggerPtr = std::shared_ptr<spdlog::logger>;
@@ -22,35 +21,27 @@ namespace dumageview::log
 
   LoggerPtr initAppLogger();
 
-  inline char const* appLoggerName()
-  {
+  inline char const* appLoggerName() {
     return "dumageview";
   }
 
-  inline LoggerPtr appLogger()
-  {
+  inline LoggerPtr appLogger() {
     auto logger = spdlog::get(appLoggerName());
     DUMAGEVIEW_ASSERT(logger);
     return logger;
   }
 
-  namespace detail
-  {
+  namespace detail {
     template<class A>
-    auto convertArg(A&& arg)
-    {
-      if constexpr (std::is_pointer_v<std::decay_t<A>>)
-      {
+    auto convertArg(A&& arg) {
+      if constexpr (std::is_pointer_v<std::decay_t<A>>) {
         return static_cast<void*>(arg);
-      }
-      else
-      {
+      } else {
         return std::forward<A>(arg);
       }
     }
 
-    inline auto convertArg(char const* cstr)
-    {
+    inline auto convertArg(char const* cstr) {
       return cstr;
     }
   }
@@ -59,70 +50,61 @@ namespace dumageview::log
   void log(Level level,
            LoggerPtr const& logger,
            char const* message,
-           As&&... args)
-  {
+           As&&... args) {
     DUMAGEVIEW_ASSERT(logger);
-    logger->log(level, message,
-                detail::convertArg(std::forward<As>(args))...);
+    logger->log(level, message, detail::convertArg(std::forward<As>(args))...);
   }
 
   template<class... As>
-  void log(Level level,
-           char const* message,
-           As&&... args)
-  {
+  void log(Level level, char const* message, As&&... args) {
     log(level, appLogger(), message, std::forward<As>(args)...);
   }
 
   template<class... As>
-  void trace(As&&... args)
-  {
+  void trace(As&&... args) {
     log(Level::trace, std::forward<As>(args)...);
   }
 
   template<class... As>
-  void debug(As&&... args)
-  {
+  void debug(As&&... args) {
     log(Level::debug, std::forward<As>(args)...);
   }
 
   template<class... As>
-  void info(As&&... args)
-  {
+  void info(As&&... args) {
     log(Level::info, std::forward<As>(args)...);
   }
 
   template<class... As>
-  void warn(As&&... args)
-  {
+  void warn(As&&... args) {
     log(Level::warn, std::forward<As>(args)...);
   }
 
   template<class... As>
-  void error(As&&... args)
-  {
+  void error(As&&... args) {
     log(Level::err, std::forward<As>(args)...);
   }
 
   template<class... As>
-  void critical(As&&... args)
-  {
+  void critical(As&&... args) {
     log(Level::critical, std::forward<As>(args)...);
   }
 
-  namespace detail
-  {
+  namespace detail {
     template<class... As>
     void traceMacroHelper(char const* func,
                           char const* file,
                           long line,
                           LoggerPtr const& logger,
                           char const* msg,
-                          As&&... args)
-    {
+                          As&&... args) {
       auto format = "[{}] [{}:{}] "s + msg;
-      trace(logger, format.c_str(),
-            func, file, line, std::forward<As>(args)...);
+      trace(logger,
+            format.c_str(),
+            func,
+            file,
+            line,
+            std::forward<As>(args)...);
     }
 
     template<class... As>
@@ -130,9 +112,12 @@ namespace dumageview::log
                           char const* file,
                           long line,
                           char const* msg,
-                          As&&... args)
-    {
-      traceMacroHelper(func, file, line, appLogger(), msg,
+                          As&&... args) {
+      traceMacroHelper(func,
+                       file,
+                       line,
+                       appLogger(),
+                       msg,
                        std::forward<As>(args)...);
     }
 
@@ -140,26 +125,26 @@ namespace dumageview::log
     void traceMacroHelper(char const* func,
                           char const* file,
                           long line,
-                          LoggerPtr const& logger)
-    {
+                          LoggerPtr const& logger) {
       traceMacroHelper(func, file, line, logger, "");
     }
   }
 }
 
-# if defined(SPDLOG_TRACE_ON)
-#   define DUMAGEVIEW_LOG_TRACE(...) \
-      ::dumageview::log::detail::traceMacroHelper( \
-        BOOST_CURRENT_FUNCTION, __FILE__, __LINE__, __VA_ARGS__)
-# else
-#   define DUMAGEVIEW_LOG_TRACE(...)
-# endif
+#if defined(SPDLOG_TRACE_ON)
+#define DUMAGEVIEW_LOG_TRACE(...) \
+  ::dumageview::log::detail::traceMacroHelper(BOOST_CURRENT_FUNCTION, \
+                                              __FILE__, \
+                                              __LINE__, \
+                                              __VA_ARGS__)
+#else
+#define DUMAGEVIEW_LOG_TRACE(...)
+#endif
 
-# if defined(SPDLOG_DEBUG_ON) || defined(SPDLOG_TRACE_ON)
-#   define DUMAGEVIEW_LOG_DEBUG(...) \
-      ::dumageview::log::debug(__VA_ARGS__)
-# else
-#   define DUMAGEVIEW_LOG_DEBUG(...)
-# endif
+#if defined(SPDLOG_DEBUG_ON) || defined(SPDLOG_TRACE_ON)
+#define DUMAGEVIEW_LOG_DEBUG(...) ::dumageview::log::debug(__VA_ARGS__)
+#else
+#define DUMAGEVIEW_LOG_DEBUG(...)
+#endif
 
-#endif // DUMAGEVIEW_LOG_H_
+#endif  // DUMAGEVIEW_LOG_H_

@@ -26,16 +26,15 @@
 #include <type_traits>
 #include <utility>
 
-namespace dumageview::imagerenderer::detail
-{
-  namespace
-  {
+namespace dumageview::imagerenderer::detail {
+  namespace {
     constexpr double zoomFactor{1.1};
 
-    auto contextGuard(ImageWidget& widget)
-    {
+    auto contextGuard(ImageWidget& widget) {
       widget.makeCurrent();
-      return ScopeGuard{[&]{ widget.doneCurrent(); }};
+      return ScopeGuard{[&] {
+        widget.doneCurrent();
+      }};
     }
   }
 
@@ -46,39 +45,33 @@ namespace dumageview::imagerenderer::detail
   ImageRenderer::ImageRenderer(
     ImageWidget& widget,
     QMetaObject::Connection&& contextDestroyConnection)
-  :
-    _widget(widget),
-    _contextDestroyConnection(std::move(contextDestroyConnection))
-  {
+      : _widget(widget),
+        _contextDestroyConnection(std::move(contextDestroyConnection)) {
     auto* context = QOpenGLContext::currentContext();
-    if (!context)
-    {
+    if (!context) {
       throw Error("Null context returned.");
     }
 
-    DUMAGEVIEW_LOG_DEBUG(
-      "Using {} version {}.{} ({} Profile)",
-      context->isOpenGLES() ? "OpenGL ES" : "OpenGL",
-      context->format().majorVersion(),
-      context->format().minorVersion(),
-      [&] {
-        switch (context->format().profile())
-        {
-          case QSurfaceFormat::CoreProfile:
-            return "Core";
-          case QSurfaceFormat::CompatibilityProfile:
-            return "Compatibility";
-          default:
-            return "No";
-        }
-      }()
-    );
+    DUMAGEVIEW_LOG_DEBUG("Using {} version {}.{} ({} Profile)",
+                         context->isOpenGLES() ? "OpenGL ES" : "OpenGL",
+                         context->format().majorVersion(),
+                         context->format().minorVersion(),
+                         [&] {
+                           switch (context->format().profile()) {
+                             case QSurfaceFormat::CoreProfile:
+                               return "Core";
+                             case QSurfaceFormat::CompatibilityProfile:
+                               return "Compatibility";
+                             default:
+                               return "No";
+                           }
+                         }());
 
     _gl = context->versionFunctions<QOpenGLFunctions_2_1>();
-    if (!_gl)
-    {
-      throw Error("OpenGL functions "
-                  "(compatible with version 2.1) not available.");
+    if (!_gl) {
+      throw Error(
+        "OpenGL functions "
+        "(compatible with version 2.1) not available.");
     }
 
     _gl->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -87,8 +80,7 @@ namespace dumageview::imagerenderer::detail
     _gl->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   }
 
-  ImageRenderer::~ImageRenderer()
-  {
+  ImageRenderer::~ImageRenderer() {
     DUMAGEVIEW_LOG_TRACE("this = {}", this);
     removeImage();
     qtutil::disconnect(_contextDestroyConnection);
@@ -98,13 +90,12 @@ namespace dumageview::imagerenderer::detail
   // Image management
   //
 
-  void ImageRenderer::setImage(QImage image_)
-  {
+  void ImageRenderer::setImage(QImage image_) {
     auto guard = contextGuard(_widget);
 
     // TODO: Test against GL_MAX_TEXTURE_SIZE
-    _imageState.reset(new ImageState{
-        image_, QOpenGLTexture{image_}, ZoomToFitView{}});
+    _imageState.reset(
+      new ImageState{image_, QOpenGLTexture{image_}, ZoomToFitView{}});
 
     auto& tex = _imageState->texture;
     tex.setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
@@ -114,11 +105,9 @@ namespace dumageview::imagerenderer::detail
     tex.setWrapMode(QOpenGLTexture::ClampToBorder);
 
     _gl->glEnable(GL_TEXTURE_2D);
-
   }
 
-  void ImageRenderer::removeImage()
-  {
+  void ImageRenderer::removeImage() {
     auto guard = contextGuard(_widget);
     _imageState.reset();
     _gl->glDisable(GL_TEXTURE_2D);
@@ -128,25 +117,21 @@ namespace dumageview::imagerenderer::detail
   // Convenience accessor-like functions
   //
 
-  glm::dvec2 ImageRenderer::imageSize() const
-  {
+  glm::dvec2 ImageRenderer::imageSize() const {
     DUMAGEVIEW_ASSERT(_imageState);
     return conv::dvec(_imageState->image.size());
   }
 
-  glm::dvec2 ImageRenderer::screenSize() const
-  {
+  glm::dvec2 ImageRenderer::screenSize() const {
     return conv::dvec(_widget.size());
   }
 
-  SizeInfo ImageRenderer::sizeInfo() const
-  {
+  SizeInfo ImageRenderer::sizeInfo() const {
     DUMAGEVIEW_ASSERT(_imageState);
     return {imageSize(), screenSize()};
   }
 
-  ViewMod<View> ImageRenderer::viewMod() const
-  {
+  ViewMod<View> ImageRenderer::viewMod() const {
     DUMAGEVIEW_ASSERT(_imageState);
     return ViewMod(_imageState->view, sizeInfo());
   }
@@ -155,20 +140,18 @@ namespace dumageview::imagerenderer::detail
   // Input events
   //
 
-  void ImageRenderer::move(QPoint const& dPos)
-  {
-    if (!_imageState)
-      return;
+  void ImageRenderer::move(QPoint const& dPos) {
+    if (!_imageState) return;
 
     auto vm = viewMod();
-    vm.modify([&](auto& v) { v.position += conv::dvec(dPos); });
+    vm.modify([&](auto& v) {
+      v.position += conv::dvec(dPos);
+    });
     _imageState->view = vm.normalize().view();
   }
 
-  void ImageRenderer::zoomRel(int steps, QPointF const& pos)
-  {
-    if (!_imageState)
-      return;
+  void ImageRenderer::zoomRel(int steps, QPointF const& pos) {
+    if (!_imageState) return;
 
     auto vm = viewMod().reified();
     vm.setZoom(vm.view().scale * math::ipow(zoomFactor, steps),
@@ -177,10 +160,8 @@ namespace dumageview::imagerenderer::detail
     _imageState->view = vm.view();
   }
 
-  void ImageRenderer::zoomAbs(double scale, QPointF const& pos)
-  {
-    if (!_imageState)
-      return;
+  void ImageRenderer::zoomAbs(double scale, QPointF const& pos) {
+    if (!_imageState) return;
 
     auto vm = viewMod().reified();
     vm.setZoom(scale, conv::dvec(pos));
@@ -188,10 +169,8 @@ namespace dumageview::imagerenderer::detail
     _imageState->view = vm.view();
   }
 
-  void ImageRenderer::zoomToFit()
-  {
-    if (!_imageState)
-      return;
+  void ImageRenderer::zoomToFit() {
+    if (!_imageState) return;
 
     _imageState->view = ZoomToFitView{};
   }
@@ -200,8 +179,7 @@ namespace dumageview::imagerenderer::detail
   // Widget GL events
   //
 
-  void ImageRenderer::resize(int w, int h)
-  {
+  void ImageRenderer::resize(int w, int h) {
     DUMAGEVIEW_ASSERT(w == _widget.width());
     DUMAGEVIEW_ASSERT(h == _widget.height());
 
@@ -213,16 +191,13 @@ namespace dumageview::imagerenderer::detail
 
     _gl->glMatrixMode(GL_MODELVIEW);
 
-    if (_imageState)
-      _imageState->view = viewMod().normalize().view();
+    if (_imageState) _imageState->view = viewMod().normalize().view();
   }
 
-  void ImageRenderer::draw()
-  {
+  void ImageRenderer::draw() {
     _gl->glClear(GL_COLOR_BUFFER_BIT);
 
-    if (!_imageState)
-      return;
+    if (!_imageState) return;
 
     auto transform = viewMod().imageToScreenMatrix();
     _gl->glLoadMatrixd(&transform[0][0]);

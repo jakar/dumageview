@@ -8,14 +8,11 @@
 
 #include <QMainWindow>
 
-namespace dumageview
-{
-  class MainWindow : public QMainWindow
-  {
+namespace dumageview {
+  class MainWindow : public QMainWindow {
     Q_OBJECT;
 
    public:
-
     explicit MainWindow(ActionSet& actions_);
 
     virtual ~MainWindow() = default;
@@ -42,10 +39,11 @@ namespace dumageview
     // Public accessors
     //
 
-    ImageWidget& imageArea() { return _imageArea; }
+    ImageWidget& imageArea() {
+      return _imageArea;
+    }
 
    private:
-
     //
     // Private data
     //
@@ -55,4 +53,4 @@ namespace dumageview
   };
 }
 
-#endif // DUMAGEVIEW_MAINWINDOW_H_
+#endif  // DUMAGEVIEW_MAINWINDOW_H_

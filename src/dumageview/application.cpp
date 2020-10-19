@@ -11,36 +11,27 @@
 
 #include <string>
 
-namespace
-{
+namespace {
   namespace po = boost::program_options;
 }
 
-namespace dumageview::application
-{
+namespace dumageview::application {
   Application::Application(int& argc, char** argv)
-  :
-    QApplication(argc, argv),
-    _log(log::initAppLogger())
-  {
+      : QApplication(argc, argv), _log(log::initAppLogger()) {
     DUMAGEVIEW_LOG_TRACE(_log);
 
     cmdline::Parser cmdParser{argc, argv};
 
-    try
-    {
+    try {
       _cmdArgs = cmdParser.parse();
-    }
-    catch (cmdline::Error const& ex)
-    {
+    } catch (cmdline::Error const& ex) {
       fmt::print("\n{}\n", ex.what());
       cmdParser.printUsage();
       throw;
     }
   }
 
-  void Application::init()
-  {
+  void Application::init() {
     DUMAGEVIEW_LOG_TRACE(_log);
 
     // set global opengl state

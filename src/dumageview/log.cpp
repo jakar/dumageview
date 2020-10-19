@@ -2,10 +2,8 @@
 
 #include "dumageview/assert.h"
 
-namespace dumageview::log
-{
-  namespace
-  {
+namespace dumageview::log {
+  namespace {
     // TODO: make these runtime options
     constexpr char defaultPattern[] = "%^[%n] [%l] %v%$";
     constexpr Level defaultFlushLevel = Level::critical;
@@ -19,8 +17,7 @@ namespace dumageview::log
 #endif
   }
 
-  LoggerPtr initAppLogger()
-  {
+  LoggerPtr initAppLogger() {
     DUMAGEVIEW_ASSERT(!spdlog::get(appLoggerName()));
 
     auto logger = spdlog::stdout_color_mt(appLoggerName());

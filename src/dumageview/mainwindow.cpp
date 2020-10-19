@@ -15,14 +15,9 @@
 #include <QSize>
 #include <QWidget>
 
-namespace dumageview
-{
+namespace dumageview {
   MainWindow::MainWindow(ActionSet& actions_)
-  :
-    QMainWindow{},
-    _actions{actions_},
-    _imageArea(actions_, this)
-  {
+      : QMainWindow{}, _actions{actions_}, _imageArea(actions_, this) {
     setCentralWidget(&_imageArea);
     centerOnScreen();
   }
@@ -31,23 +26,20 @@ namespace dumageview
   // Window movement
   //
 
-  void MainWindow::centerOnScreen()
-  {
+  void MainWindow::centerOnScreen() {
     QRect screenRect = QApplication::desktop()->availableGeometry(this);
     QSize margin = screenRect.size() - size();
     move(conv::qpoint(margin / 2));
   }
 
-  void MainWindow::setFullScreen(bool enable)
-  {
+  void MainWindow::setFullScreen(bool enable) {
     if (enable)
       showFullScreen();
     else
       showNormal();
   }
 
-  void MainWindow::exitFullScreen()
-  {
+  void MainWindow::exitFullScreen() {
     showNormal();
     _actions.fullScreen.setChecked(false);
   }
@@ -56,19 +48,19 @@ namespace dumageview
   // Image change handling
   //
 
-  void MainWindow::resetImage(QImage const& image, ImageInfo const& info)
-  {
+  void MainWindow::resetImage(QImage const& image, ImageInfo const& info) {
     setWindowTitle(
       QString("%1 : %2 (%3 / %4) - %5")
-      .arg(info.fileName).arg(info.frame)
-      .arg(info.dirIndex + 1).arg(info.dirSize)
-      .arg(Application::singletonInstance().applicationDisplayName()));
+        .arg(info.fileName)
+        .arg(info.frame)
+        .arg(info.dirIndex + 1)
+        .arg(info.dirSize)
+        .arg(Application::singletonInstance().applicationDisplayName()));
 
     imageArea().resetImage(image);
   }
 
-  void MainWindow::removeImage()
-  {
+  void MainWindow::removeImage() {
     setWindowTitle(Application::singletonInstance().applicationDisplayName());
     imageArea().removeImage();
   }

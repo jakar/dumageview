@@ -6,19 +6,16 @@
 
 #include <optional>
 
-namespace dumageview::cmdline
-{
+namespace dumageview::cmdline {
   namespace po = boost::program_options;
 
   using Path = boost::filesystem::path;
 
-  struct Args
-  {
+  struct Args {
     std::optional<Path> imagePath;
   };
 
-  class Parser
-  {
+  class Parser {
    public:
     Parser(int argc, char** argv);
     Args parse();
@@ -35,11 +32,10 @@ namespace dumageview::cmdline
 
   using Error = po::error;
 
-  class HelpError : public virtual Error
-  {
+  class HelpError : public virtual Error {
    public:
     using Error::Error;
   };
 }
 
-#endif // DUMAGEVIEW_CMDLINE_H_
+#endif  // DUMAGEVIEW_CMDLINE_H_

@@ -5,17 +5,11 @@
 
 #include <string>
 
-namespace dumageview::cmdline
-{
-  Parser::Parser(int argc, char** argv)
-  :
-    _parser(argc, argv)
-  {
-    _generalOpts.add_options()
-      ("help,h", "display help message");
+namespace dumageview::cmdline {
+  Parser::Parser(int argc, char** argv) : _parser(argc, argv) {
+    _generalOpts.add_options()("help,h", "display help message");
 
-    _hiddenOpts.add_options()
-      ("input", po::value<std::string>(), "input image");
+    _hiddenOpts.add_options()("input", po::value<std::string>(), "input image");
 
     _visibleOpts.add(_generalOpts);
     _allOpts.add(_generalOpts).add(_hiddenOpts);
@@ -29,8 +23,7 @@ namespace dumageview::cmdline
     // _parser.allow_unregistered();
   }
 
-  Args Parser::parse()
-  {
+  Args Parser::parse() {
     auto parsedOpts = _parser.run();
 
     po::variables_map varMap;
@@ -38,16 +31,14 @@ namespace dumageview::cmdline
     po::notify(varMap);
 
     // exit on help
-    if (varMap.find("help") != varMap.end())
-    {
+    if (varMap.find("help") != varMap.end()) {
       throw HelpError("Usage:");
     }
 
     // check input image path
     std::optional<Path> imagePath;
 
-    if (varMap.find("input") != varMap.end())
-    {
+    if (varMap.find("input") != varMap.end()) {
       std::string inputArg = varMap.at("input").as<std::string>();
 
       // TODO: check for existence
@@ -57,8 +48,7 @@ namespace dumageview::cmdline
     return {imagePath};
   }
 
-  void Parser::printUsage()
-  {
+  void Parser::printUsage() {
     fmt::print("{}\n", _visibleOpts);
   }
 }

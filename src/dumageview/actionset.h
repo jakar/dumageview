@@ -6,13 +6,11 @@
 #include <functional>
 #include <vector>
 
-namespace dumageview::actionset
-{
+namespace dumageview::actionset {
   /**
    * Application-wide actions.
    */
-  struct ActionSet
-  {
+  struct ActionSet {
     QAction open{};
     QAction save{};
     QAction close{};
@@ -42,40 +40,29 @@ namespace dumageview::actionset
 
   using RefList = std::vector<std::reference_wrapper<QAction>>;
 
-  inline RefList listActions(ActionSet& actions)
-  {
+  inline RefList listActions(ActionSet& actions) {
     return {
-      actions.open,
-      actions.save,
-      actions.close,
-      actions.quit,
+      actions.open,        actions.save,
+      actions.close,       actions.quit,
 
-      actions.zoomToFit,
-      actions.zoomOriginal,
-      actions.zoomIn,
-      actions.zoomOut,
+      actions.zoomToFit,   actions.zoomOriginal,
+      actions.zoomIn,      actions.zoomOut,
 
-      actions.panUp,
-      actions.panDown,
-      actions.panLeft,
-      actions.panRight,
+      actions.panUp,       actions.panDown,
+      actions.panLeft,     actions.panRight,
 
-      actions.prevImage,
-      actions.nextImage,
+      actions.prevImage,   actions.nextImage,
 
-      actions.prevFrame,
-      actions.nextFrame,
+      actions.prevFrame,   actions.nextFrame,
 
-      actions.fullScreen,
-      actions.exitFullScreen,
+      actions.fullScreen,  actions.exitFullScreen,
 
       actions.showMenuBar,
     };
   }
 }
 
-namespace dumageview
-{
+namespace dumageview {
   using actionset::ActionSet;
 }
 

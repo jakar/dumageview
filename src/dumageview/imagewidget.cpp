@@ -20,24 +20,18 @@
 #include <QSizePolicy>
 #include <QWheelEvent>
 
-namespace dumageview
-{
-  namespace
-  {
+namespace dumageview {
+  namespace {
     constexpr int wheelStepSize = 120;
   }
 
   ImageWidget::ImageWidget(ActionSet& actions_, QWidget* parent_)
-  :
-    Base(parent_),
-    _actions(actions_)
-  {
+      : Base(parent_), _actions(actions_) {
     setUpdateBehavior(NoPartialUpdate);
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
   }
 
-  ImageWidget::~ImageWidget()
-  {
+  ImageWidget::~ImageWidget() {
     DUMAGEVIEW_LOG_TRACE("this={}", this);
   }
 
@@ -45,28 +39,26 @@ namespace dumageview
   // Widget properties
   //
 
-  QSize ImageWidget::sizeHint() const
-  {
+  QSize ImageWidget::sizeHint() const {
     QRect screenRect = QApplication::desktop()->availableGeometry(this);
     auto partialScreen = screenRect.size() * 3 / 5;
 
-    if (!_image)
-      return partialScreen;
+    if (!_image) return partialScreen;
 
     auto longDim =
       (math::aspectRatio(_image->size()) > math::aspectRatio(partialScreen))
         ? math::getX
         : math::getY;
 
-    auto longConv =
-      [&](auto const& v) { return longDim(conv::dvec(v)); };
+    auto longConv = [&](auto const& v) {
+      return longDim(conv::dvec(v));
+    };
 
     double scale = longConv(partialScreen) / longConv(_image->size());
     return _image->size() * scale;
   }
 
-  QSize ImageWidget::minimumSizeHint() const
-  {
+  QSize ImageWidget::minimumSizeHint() const {
     // arbitrary still-usable size
     return {200, 200};
   }
@@ -75,10 +67,8 @@ namespace dumageview
   // Image slots
   //
 
-  void ImageWidget::resetImage(QImage const& image)
-  {
-    if (image.isNull())
-    {
+  void ImageWidget::resetImage(QImage const& image) {
+    if (image.isNull()) {
       imageLoadFailed("Cannot load null image");
       return;
     }
@@ -86,20 +76,17 @@ namespace dumageview
     _image = image;
     activateZoomToFit();
 
-    if (_renderer)
-      _renderer->setImage(image);
+    if (_renderer) _renderer->setImage(image);
 
     updateGeometry();
     update();
   }
 
-  void ImageWidget::removeImage()
-  {
+  void ImageWidget::removeImage() {
     _image.reset();
     deactivateZoomToFit();
 
-    if (_renderer)
-      _renderer->removeImage();
+    if (_renderer) _renderer->removeImage();
 
     updateGeometry();
     update();
@@ -109,20 +96,16 @@ namespace dumageview
   // Zooming
   //
 
-  void ImageWidget::zoomIn()
-  {
+  void ImageWidget::zoomIn() {
     zoom(1, conv::qpointf(size()) * 0.5);
   }
 
-  void ImageWidget::zoomOut()
-  {
+  void ImageWidget::zoomOut() {
     zoom(-1, conv::qpointf(size()) * 0.5);
   }
 
-  void ImageWidget::zoom(int steps, QPointF const& center)
-  {
-    if (!_renderer)
-      return;
+  void ImageWidget::zoom(int steps, QPointF const& center) {
+    if (!_renderer) return;
 
     deactivateZoomToFit();
     _renderer->zoomRel(steps, center);
@@ -130,10 +113,8 @@ namespace dumageview
     update();
   }
 
-  void ImageWidget::zoomOriginal()
-  {
-    if (!_renderer)
-      return;
+  void ImageWidget::zoomOriginal() {
+    if (!_renderer) return;
 
     deactivateZoomToFit();
     _renderer->zoomAbs(1.0, conv::qpointf(size()) * 0.5);
@@ -141,10 +122,8 @@ namespace dumageview
     update();
   }
 
-  void ImageWidget::zoomToFit()
-  {
-    if (!_renderer)
-      return;
+  void ImageWidget::zoomToFit() {
+    if (!_renderer) return;
 
     activateZoomToFit();
     _renderer->zoomToFit();
@@ -152,18 +131,15 @@ namespace dumageview
     update();
   }
 
-  void ImageWidget::activateZoomToFit()
-  {
+  void ImageWidget::activateZoomToFit() {
     _actions.zoomToFit.setEnabled(false);
   }
 
-  void ImageWidget::deactivateZoomToFit()
-  {
+  void ImageWidget::deactivateZoomToFit() {
     _actions.zoomToFit.setEnabled(true);
   }
 
-  bool ImageWidget::zoomToFitActive() const
-  {
+  bool ImageWidget::zoomToFitActive() const {
     // The state of zoom-to-fit is the opposite of the action enable state,
     return !_actions.zoomToFit.isEnabled();
   }
@@ -172,30 +148,25 @@ namespace dumageview
   // GL handlers
   //
 
-  void ImageWidget::initializeGL()
-  {
+  void ImageWidget::initializeGL() {
     DUMAGEVIEW_ASSERT(!_renderer);
 
-    try
-    {
-      auto connection = qtutil::connect(
-        context(), &QOpenGLContext::aboutToBeDestroyed,
-        this, &ImageWidget::cleanupGL);
+    try {
+      auto connection = qtutil::connect(context(),
+                                        &QOpenGLContext::aboutToBeDestroyed,
+                                        this,
+                                        &ImageWidget::cleanupGL);
 
       _renderer = std::make_unique<ImageRenderer>(*this, std::move(connection));
 
-      if (_image)
-        _renderer->setImage(*_image);
-    }
-    catch (imagerenderer::Error const& error)
-    {
+      if (_image) _renderer->setImage(*_image);
+    } catch (imagerenderer::Error const& error) {
       log::error("Could not initialize graphics: {}", error.what());
       Application::singletonInstance().exit(application::exitcode::glInitError);
     }
   }
 
-  void ImageWidget::resizeGL(int w, int h)
-  {
+  void ImageWidget::resizeGL(int w, int h) {
     DUMAGEVIEW_ASSERT(w == width());
     DUMAGEVIEW_ASSERT(h == height());
     DUMAGEVIEW_ASSERT(_renderer);
@@ -203,14 +174,12 @@ namespace dumageview
     _renderer->resize(w, h);
   }
 
-  void ImageWidget::paintGL()
-  {
+  void ImageWidget::paintGL() {
     DUMAGEVIEW_ASSERT(_renderer);
     _renderer->draw();
   }
 
-  void ImageWidget::cleanupGL()
-  {
+  void ImageWidget::cleanupGL() {
     DUMAGEVIEW_ASSERT(_renderer);
     DUMAGEVIEW_LOG_TRACE("this={}, _renderer={}", this, _renderer.get());
     _renderer.reset();
@@ -220,8 +189,7 @@ namespace dumageview
   // Event handlers
   //
 
-  void ImageWidget::mouseDoubleClickEvent(QMouseEvent* evt)
-  {
+  void ImageWidget::mouseDoubleClickEvent(QMouseEvent* evt) {
     DUMAGEVIEW_ASSERT(evt);
 
     // Test environment has the following double-click sequence:
@@ -232,8 +200,7 @@ namespace dumageview
     //
     // However, looking on the internet, this does not seem to be universal.
 
-    switch (evt->button())
-    {
+    switch (evt->button()) {
       case Qt::LeftButton:
         _lastMousePos = evt->pos();
         _actions.fullScreen.trigger();
@@ -245,12 +212,10 @@ namespace dumageview
     }
   }
 
-  void ImageWidget::mousePressEvent(QMouseEvent* evt)
-  {
+  void ImageWidget::mousePressEvent(QMouseEvent* evt) {
     DUMAGEVIEW_ASSERT(evt);
 
-    switch (evt->button())
-    {
+    switch (evt->button()) {
       case Qt::LeftButton:
         _lastMousePos = evt->pos();
         break;
@@ -269,12 +234,10 @@ namespace dumageview
     }
   }
 
-  void ImageWidget::mouseReleaseEvent(QMouseEvent* evt)
-  {
+  void ImageWidget::mouseReleaseEvent(QMouseEvent* evt) {
     DUMAGEVIEW_ASSERT(evt);
 
-    switch (evt->button())
-    {
+    switch (evt->button()) {
       case Qt::LeftButton:
         _lastMousePos.reset();
         break;
@@ -285,40 +248,32 @@ namespace dumageview
     }
   }
 
-  void ImageWidget::mouseMoveEvent(QMouseEvent* evt)
-  {
+  void ImageWidget::mouseMoveEvent(QMouseEvent* evt) {
     DUMAGEVIEW_ASSERT(evt);
 
-    if (evt->buttons() & Qt::LeftButton)
-    {
-      if (_renderer && _lastMousePos)
-      {
+    if (evt->buttons() & Qt::LeftButton) {
+      if (_renderer && _lastMousePos) {
         _renderer->move(evt->pos() - *_lastMousePos);
         update();
       }
 
       _lastMousePos = evt->pos();
-    }
-    else
-    {
+    } else {
       Base::mouseMoveEvent(evt);
     }
   }
 
-  void ImageWidget::wheelEvent(QWheelEvent* evt)
-  {
+  void ImageWidget::wheelEvent(QWheelEvent* evt) {
     DUMAGEVIEW_ASSERT(evt);
     int steps = evt->angleDelta().y() / wheelStepSize;
     zoom(steps, evt->posF());
   }
 
-  void ImageWidget::keyPressEvent(QKeyEvent* evt)
-  {
+  void ImageWidget::keyPressEvent(QKeyEvent* evt) {
     Base::keyPressEvent(evt);
   }
 
-  void ImageWidget::contextMenuEvent(QContextMenuEvent* evt)
-  {
+  void ImageWidget::contextMenuEvent(QContextMenuEvent* evt) {
     DUMAGEVIEW_ASSERT(evt);
 
     contextMenuWanted(evt->globalPos());

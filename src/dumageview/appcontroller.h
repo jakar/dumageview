@@ -10,14 +10,11 @@
 #include <QAction>
 #include <QObject>
 
-namespace dumageview
-{
-  class AppController : public QObject
-  {
+namespace dumageview {
+  class AppController : public QObject {
     Q_OBJECT;
 
    public:
-
     explicit AppController(cmdline::Args const& cmdArgs_);
 
     virtual ~AppController() = default;
@@ -27,7 +24,6 @@ namespace dumageview
     void saveImage();
 
    private:
-
     void setupConnections();
 
     QString dialogFilter() const;
@@ -36,16 +32,28 @@ namespace dumageview
     // Private accessors
     //
 
-    ActionSet& actions() { return _menuMaker.actions(); }
+    ActionSet& actions() {
+      return _menuMaker.actions();
+    }
 
-    ImageController& imageController() { return _imageController; }
-    ImageController const& imageController() const { return _imageController; }
+    ImageController& imageController() {
+      return _imageController;
+    }
+    ImageController const& imageController() const {
+      return _imageController;
+    }
 
-    MainWindow& mainWindow() { return _mainWindow; }
+    MainWindow& mainWindow() {
+      return _mainWindow;
+    }
 
-    ImageWidget& imageWidget() { return _mainWindow.imageArea(); }
+    ImageWidget& imageWidget() {
+      return _mainWindow.imageArea();
+    }
 
-    MenuMaker& menuMaker() { return _menuMaker; }
+    MenuMaker& menuMaker() {
+      return _menuMaker;
+    }
 
     //
     // Private data
@@ -57,4 +65,4 @@ namespace dumageview
   };
 }
 
-#endif // DUMAGEVIEW_APPCONTROLLER_H_
+#endif  // DUMAGEVIEW_APPCONTROLLER_H_

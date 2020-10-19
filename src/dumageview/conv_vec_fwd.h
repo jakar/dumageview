@@ -10,8 +10,7 @@ class QSize;
 class QSizeF;
 class QString;
 
-namespace dumageview::conv
-{
+namespace dumageview::conv {
   template<class Vec>
   struct VecConv;
 
@@ -93,4 +92,4 @@ namespace dumageview::conv
   glm::vec2 vec(float a);
 }
 
-#endif // DUMAGEVIEW_CONV_VEC_FWD_H_
+#endif  // DUMAGEVIEW_CONV_VEC_FWD_H_

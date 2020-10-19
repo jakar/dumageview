@@ -8,44 +8,34 @@
 #include <type_traits>
 #include <utility>
 
-namespace dumageview::classtools
-{
+namespace dumageview::classtools {
   enum class Mutability { mutable_, const_ };
 
   /**
    * Keeps reference to global instance of class.
    */
   template<Mutability mut, class Derived>
-  class Singleton
-  {
+  class Singleton {
    public:
     using Ref =
-      std::conditional_t<
-        mut == Mutability::mutable_,
-        Derived&,
-        Derived const&
-      >;
+      std::conditional_t<mut == Mutability::mutable_, Derived&, Derived const&>;
 
-    virtual ~Singleton()
-    {
+    virtual ~Singleton() {
       DUMAGEVIEW_ASSERT(_instance != nullptr);
       _instance = nullptr;
     }
 
-    static Ref singletonInstance()
-    {
+    static Ref singletonInstance() {
       DUMAGEVIEW_ASSERT(_instance);
       return static_cast<Ref>(*_instance);
     }
 
-    static bool singletonInstantiated()
-    {
+    static bool singletonInstantiated() {
       return (_instance != nullptr);
     }
 
    protected:
-    Singleton()
-    {
+    Singleton() {
       DUMAGEVIEW_ASSERT(_instance == nullptr);
       _instance = this;
     }
@@ -68,16 +58,14 @@ namespace dumageview::classtools
   //
 
   template<class T>
-  auto copyUnique(T&& val)
-  {
+  auto copyUnique(T&& val) {
     return std::make_unique<std::decay_t<T>>(std::forward<T>(val));
   }
 
   template<class T>
-  auto copyShared(T&& val)
-  {
+  auto copyShared(T&& val) {
     return std::make_shared<std::decay_t<T>>(std::forward<T>(val));
   }
 }
 
-#endif // DUMAGEVIEW_CLASSTOOLS_H_
+#endif  // DUMAGEVIEW_CLASSTOOLS_H_

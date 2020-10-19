@@ -11,14 +11,13 @@
 #include <memory>
 #include <optional>
 
-namespace dumageview { class AppController; }
+namespace dumageview {
+  class AppController;
+}
 
-namespace dumageview::application
-{
-  namespace exitcode
-  {
-    enum ExitCode : int
-    {
+namespace dumageview::application {
+  namespace exitcode {
+    enum ExitCode : int {
       success = 0,
       cliError = 1,
       glInitError = 2,
@@ -28,33 +27,30 @@ namespace dumageview::application
 
   using exitcode::ExitCode;
 
-  class Application :
-    public QApplication,
-    public classtools::MutableSingleton<Application>
-  {
+  class Application : public QApplication,
+                      public classtools::MutableSingleton<Application> {
     Q_OBJECT;
 
    public:
-
     Application(int& argc, char** argv);
 
     virtual ~Application() = default;
 
     void init();
 
-    log::LoggerPtr const& log() const { return _log; }
+    log::LoggerPtr const& log() const {
+      return _log;
+    }
 
    private:
-
     log::LoggerPtr _log;
     std::optional<cmdline::Args> _cmdArgs;
     std::unique_ptr<AppController> _controller;
   };
 }
 
-namespace dumageview
-{
+namespace dumageview {
   using application::Application;
 }
 
-#endif // DUMAGEVIEW_APPLICATION_H_
+#endif  // DUMAGEVIEW_APPLICATION_H_

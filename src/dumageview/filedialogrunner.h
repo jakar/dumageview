@@ -8,18 +8,15 @@
 #include <string>
 #include <vector>
 
-namespace dumageview
-{
+namespace dumageview {
   /**
    * Provides wrappers of QFileDialog functions to use handlers instead
    * of exec.
    */
-  class FileDialogRunner : public DialogRunner
-  {
+  class FileDialogRunner : public DialogRunner {
     Q_OBJECT;
 
    public:
-
     using DialogRunner::DialogRunner;
 
     virtual ~FileDialogRunner() = default;
@@ -28,8 +25,7 @@ namespace dumageview
     // Public member functions
     //
 
-    QFileDialog* fileDialog() const
-    {
+    QFileDialog* fileDialog() const {
       return static_cast<QFileDialog*>(dialog());
     }
 
@@ -39,8 +35,7 @@ namespace dumageview
 
     using ExtensionSet = std::vector<std::string>;
 
-    static QString makeSelectionFilter(std::string title,
-                                       ExtensionSet exts);
+    static QString makeSelectionFilter(std::string title, ExtensionSet exts);
 
     static void getExistingDirectory(
       Handler<QString> const& resultHandler,
@@ -49,32 +44,29 @@ namespace dumageview
       QString const& dir = QString{},
       QFileDialog::Options options = QFileDialog::ShowDirsOnly);
 
-    static void getOpenFileName(
-      Handler<QString> const& resultHandler,
-      QWidget* parent = nullptr,
-      QString const& caption = QString{},
-      QString const& dir = QString{},
-      QString const& filter = QString{},
-      QString* selectedFilter = nullptr,
-      QFileDialog::Options options = 0);
+    static void getOpenFileName(Handler<QString> const& resultHandler,
+                                QWidget* parent = nullptr,
+                                QString const& caption = QString{},
+                                QString const& dir = QString{},
+                                QString const& filter = QString{},
+                                QString* selectedFilter = nullptr,
+                                QFileDialog::Options options = 0);
 
-    static void getOpenFileNames(
-      Handler<QStringList> const& resultHandler,
-      QWidget* parent = nullptr,
-      QString const& caption = QString{},
-      QString const& dir = QString{},
-      QString const& filter = QString{},
-      QString* selectedFilter = nullptr,
-      QFileDialog::Options options = 0);
+    static void getOpenFileNames(Handler<QStringList> const& resultHandler,
+                                 QWidget* parent = nullptr,
+                                 QString const& caption = QString{},
+                                 QString const& dir = QString{},
+                                 QString const& filter = QString{},
+                                 QString* selectedFilter = nullptr,
+                                 QFileDialog::Options options = 0);
 
-    static void getSaveFileName(
-      Handler<QString> const& resultHandler,
-      QWidget* parent = nullptr,
-      QString const& caption = QString{},
-      QString const& dir = QString{},
-      QString const& filter = QString{},
-      QString* selectedFilter = nullptr,
-      QFileDialog::Options options = 0);
+    static void getSaveFileName(Handler<QString> const& resultHandler,
+                                QWidget* parent = nullptr,
+                                QString const& caption = QString{},
+                                QString const& dir = QString{},
+                                QString const& filter = QString{},
+                                QString* selectedFilter = nullptr,
+                                QFileDialog::Options options = 0);
   };
 }
 

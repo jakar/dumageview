@@ -8,23 +8,20 @@
 #include <type_traits>
 #include <variant>
 
-namespace dumageview::renderview
-{
+namespace dumageview::renderview {
   inline constexpr double minZoom{0.05};
   inline constexpr double maxZoom{20.0};
 
   struct ZoomToFitView {};
 
-  struct ManualView
-  {
+  struct ManualView {
     double scale{1.0};
     glm::dvec2 position{0.0};
   };
 
   using View = std::variant<ZoomToFitView, ManualView>;
 
-  struct SizeInfo
-  {
+  struct SizeInfo {
     glm::dvec2 image;
     glm::dvec2 screen;
   };
@@ -48,10 +45,10 @@ namespace dumageview::renderview
   ViewMod(V, SizeInfo const&) -> ViewMod<std::decay_t<V>>;
 
   template<class Derived>
-  class BaseViewMod
-  {
+  class BaseViewMod {
    public:
-    BaseViewMod(View const& v, SizeInfo const& s) : _view{v}, _size{s} {}
+    BaseViewMod(View const& v, SizeInfo const& s) : _view{v}, _size{s} {
+    }
     BaseViewMod(BaseViewMod const&) = default;
 
     template<class F>
@@ -60,10 +57,16 @@ namespace dumageview::renderview
     Derived& normalize();
     ViewMod<ManualView> reified() const;
 
-    SizeInfo const& size() const { return _size; }
+    SizeInfo const& size() const {
+      return _size;
+    }
 
-    Derived& dref() { return static_cast<Derived&>(*this); }
-    Derived const& dref() const { return static_cast<Derived const&>(*this); }
+    Derived& dref() {
+      return static_cast<Derived&>(*this);
+    }
+    Derived const& dref() const {
+      return static_cast<Derived const&>(*this);
+    }
 
    protected:
     View _view;
@@ -71,8 +74,7 @@ namespace dumageview::renderview
   };
 
   template<>
-  class ViewMod<View> : public BaseViewMod<ViewMod<View>>
-  {
+  class ViewMod<View> : public BaseViewMod<ViewMod<View>> {
    public:
     using Base = BaseViewMod<ViewMod<View>>;
     using Base::Base;
@@ -83,17 +85,21 @@ namespace dumageview::renderview
     glm::dmat4 imageToScreenMatrix() const;
     glm::dmat4 screenToImageMatrix() const;
 
-    View& view() { return _view; }
-    View const& view() const { return _view; }
+    View& view() {
+      return _view;
+    }
+    View const& view() const {
+      return _view;
+    }
   };
 
   template<>
-  class ViewMod<ManualView> : public BaseViewMod<ViewMod<ManualView>>
-  {
+  class ViewMod<ManualView> : public BaseViewMod<ViewMod<ManualView>> {
    public:
     using Base = BaseViewMod<ViewMod<ManualView>>;
 
-    ViewMod(ManualView const& v, SizeInfo const& s) : Base(v, s) {}
+    ViewMod(ManualView const& v, SizeInfo const& s) : Base(v, s) {
+    }
     ViewMod(ViewMod const&) = default;
 
     ViewMod& center(math::Getter const& dim);
@@ -107,8 +113,12 @@ namespace dumageview::renderview
     glm::dmat4 imageToScreenMatrix() const;
     glm::dmat4 screenToImageMatrix() const;
 
-    ManualView& view() { return std::get<ManualView>(_view); }
-    ManualView const& view() const { return std::get<ManualView>(_view); }
+    ManualView& view() {
+      return std::get<ManualView>(_view);
+    }
+    ManualView const& view() const {
+      return std::get<ManualView>(_view);
+    }
   };
 }
 

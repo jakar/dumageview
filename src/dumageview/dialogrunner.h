@@ -10,8 +10,7 @@
 #include <type_traits>
 #include <variant>
 
-namespace dumageview
-{
+namespace dumageview {
   /**
    * Opens a dialog and runs a handler when it closes.
    *
@@ -19,17 +18,14 @@ namespace dumageview
    * behind the scenes. Instances of this class and the dialog it contains are
    * deleted after running handlers.
    */
-  class DialogRunner : public QObject, private boost::noncopyable
-  {
+  class DialogRunner : public QObject, private boost::noncopyable {
     Q_OBJECT;
 
    public:
-
     template<class A>
     using Handler = std::function<void(A)>;
 
-    DialogRunner(QDialog* dialog_, QObject* parent_,
-                 bool ownDialog = true);
+    DialogRunner(QDialog* dialog_, QObject* parent_, bool ownDialog = true);
 
     virtual ~DialogRunner();
 
@@ -44,16 +40,16 @@ namespace dumageview
      * Returns immediately.
      */
     template<class H>
-    void safeExec(H&& handler)
-    {
+    void safeExec(H&& handler) {
       _finishHandler = std::forward<H>(handler);
       safeExec();
     }
 
-    QDialog* dialog() const { return _dialog; }
+    QDialog* dialog() const {
+      return _dialog;
+    }
 
    protected:
-
     virtual void setupConnections();
 
    protected Q_SLOTS:
@@ -63,10 +59,9 @@ namespace dumageview
     virtual void cleanup();
 
    private:
-
     QDialog* _dialog;
     bool _deleteDialogWhenFinished;
-    Handler<int> _finishHandler = [](int){};
+    Handler<int> _finishHandler = [](int) {};
   };
 }
 

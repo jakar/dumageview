@@ -3,13 +3,11 @@
 
 #include <QString>
 
-namespace dumageview
-{
+namespace dumageview {
   /**
    * Image metadata that is not included in QImage.
    */
-  struct ImageInfo
-  {
+  struct ImageInfo {
     QString fileName;
     QString filePath;  // absolute
 
@@ -21,4 +19,4 @@ namespace dumageview
   };
 }
 
-#endif // DUMAGEVIEW_IMAGEINFO_H_
+#endif  // DUMAGEVIEW_IMAGEINFO_H_

@@ -7,23 +7,20 @@
 
 #include <utility>
 
-namespace dumageview::qtutil
-{
+namespace dumageview::qtutil {
   template<class... Args>
-  QMetaObject::Connection connect(Args&&... args)
-  {
+  QMetaObject::Connection connect(Args&&... args) {
     auto result = QObject::connect(std::forward<Args>(args)...);
     DUMAGEVIEW_ASSERT(result);
     return result;
   }
 
   template<class... Args>
-  bool disconnect(Args&&... args)
-  {
+  bool disconnect(Args&&... args) {
     auto result = QObject::disconnect(std::forward<Args>(args)...);
     DUMAGEVIEW_ASSERT(result);
     return result;
   }
 }
 
-#endif // DUMAGEVIEW_QTUTIL_H_
+#endif  // DUMAGEVIEW_QTUTIL_H_

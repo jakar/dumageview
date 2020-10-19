@@ -6,10 +6,8 @@
 
 class QString;
 
-namespace dumageview::conv
-{
-  namespace literals
-  {
+namespace dumageview::conv {
+  namespace literals {
     QString operator""_qstr(char const* data, size_t size);
   }
 
@@ -20,4 +18,4 @@ namespace dumageview::conv
   std::string str(std::string_view const& sv);
 }
 
-#endif // DUMAGEVIEW_CONV_STR_FWD_H_
+#endif  // DUMAGEVIEW_CONV_STR_FWD_H_

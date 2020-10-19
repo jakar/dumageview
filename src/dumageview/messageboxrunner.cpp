@@ -12,10 +12,8 @@
 
 #include <boost/hana.hpp>
 
-namespace dumageview
-{
-  namespace
-  {
+namespace dumageview {
+  namespace {
     namespace hana = boost::hana;
 
     using StandardButton = QMessageBox::StandardButton;
@@ -28,11 +26,10 @@ namespace dumageview
       QString const& title,
       QString const& text,
       StandardButtons buttons,
-      StandardButton defaultButton)
-    {
+      StandardButton defaultButton) {
       // set up the buttons like the Qt source code does
-      QMessageBox* msgBox = new QMessageBox{
-        icon, title, text, QMessageBox::NoButton, parent};
+      QMessageBox* msgBox =
+        new QMessageBox{icon, title, text, QMessageBox::NoButton, parent};
 
       QDialogButtonBox* buttonBox = msgBox->findChild<QDialogButtonBox*>();
       DUMAGEVIEW_ASSERT(buttonBox);
@@ -42,55 +39,49 @@ namespace dumageview
       // LastButton == RestoreDefaults
       unsigned mask = QMessageBox::FirstButton;
 
-      while (mask <= QMessageBox::LastButton)
-      {
+      while (mask <= QMessageBox::LastButton) {
         unsigned sbutton = buttons & mask;
         mask <<= 1;
 
-        if (!sbutton)
-          continue;
+        if (!sbutton) continue;
 
-        QPushButton* button = msgBox->addButton(static_cast<StandardButton>(sbutton));
+        QPushButton* button =
+          msgBox->addButton(static_cast<StandardButton>(sbutton));
 
         // Choose the first accept role as the default
-        if (msgBox->defaultButton())
-          continue;
+        if (msgBox->defaultButton()) continue;
 
         bool isAcceptRole =
           defaultButton == QMessageBox::NoButton
           && buttonBox->buttonRole(button) == QDialogButtonBox::AcceptRole;
 
-        bool isDefault =
-          defaultButton != QMessageBox::NoButton
-          && sbutton == static_cast<unsigned>(defaultButton);
+        bool isDefault = defaultButton != QMessageBox::NoButton
+                         && sbutton == static_cast<unsigned>(defaultButton);
 
-        if (isAcceptRole || isDefault)
-          msgBox->setDefaultButton(button);
+        if (isAcceptRole || isDefault) msgBox->setDefaultButton(button);
       }
 
-      auto execHandler =
-        [msgBox](int result) -> StandardButton
-        {
-          // Qt converts NoButton to -1 and doesn't document it
-          if (result == -1)
-            return QMessageBox::Cancel;
-          else
-            return msgBox->standardButton(msgBox->clickedButton());
-        };
+      auto execHandler = [msgBox](int result) -> StandardButton {
+        // Qt converts NoButton to -1 and doesn't document it
+        if (result == -1)
+          return QMessageBox::Cancel;
+        else
+          return msgBox->standardButton(msgBox->clickedButton());
+      };
 
       MessageBoxRunner* runner = new MessageBoxRunner(msgBox, parent);
       runner->safeExec(hana::compose(resultHandler, execHandler));
     }
   }
 
-  void MessageBoxRunner::setupConnections()
-  {
-    qtutil::connect(messageBox(), &QMessageBox::buttonClicked,
-                    this, &MessageBoxRunner::handleResult);
+  void MessageBoxRunner::setupConnections() {
+    qtutil::connect(messageBox(),
+                    &QMessageBox::buttonClicked,
+                    this,
+                    &MessageBoxRunner::handleResult);
   }
 
-  void MessageBoxRunner::handleResult(QAbstractButton* button)
-  {
+  void MessageBoxRunner::handleResult(QAbstractButton* button) {
     int buttonID = messageBox()->standardButton(button);
 
     // Qt returns -1 in exec() for no button
@@ -103,16 +94,19 @@ namespace dumageview
   // Static member functions
   //
 
-  void MessageBoxRunner::critical(
-    Handler<StandardButton> const& resultHandler,
-    QWidget* parent,
-    QString const& title,
-    QString const& text,
-    StandardButtons buttons,
-    StandardButton defaultButton)
-  {
-    runNewMessageBox(resultHandler, parent, QMessageBox::Critical,
-                     title, text, buttons, defaultButton);
+  void MessageBoxRunner::critical(Handler<StandardButton> const& resultHandler,
+                                  QWidget* parent,
+                                  QString const& title,
+                                  QString const& text,
+                                  StandardButtons buttons,
+                                  StandardButton defaultButton) {
+    runNewMessageBox(resultHandler,
+                     parent,
+                     QMessageBox::Critical,
+                     title,
+                     text,
+                     buttons,
+                     defaultButton);
   }
 
   void MessageBoxRunner::information(
@@ -121,85 +115,94 @@ namespace dumageview
     QString const& title,
     QString const& text,
     StandardButtons buttons,
-    StandardButton defaultButton)
-  {
-    runNewMessageBox(resultHandler, parent, QMessageBox::Information,
-                     title, text, buttons, defaultButton);
+    StandardButton defaultButton) {
+    runNewMessageBox(resultHandler,
+                     parent,
+                     QMessageBox::Information,
+                     title,
+                     text,
+                     buttons,
+                     defaultButton);
   }
 
-  void MessageBoxRunner::question(
-    Handler<StandardButton> const& resultHandler,
-    QWidget* parent,
-    QString const& title,
-    QString const& text,
-    StandardButtons buttons,
-    StandardButton defaultButton)
-  {
-    runNewMessageBox(resultHandler, parent, QMessageBox::Question,
-                     title, text, buttons, defaultButton);
+  void MessageBoxRunner::question(Handler<StandardButton> const& resultHandler,
+                                  QWidget* parent,
+                                  QString const& title,
+                                  QString const& text,
+                                  StandardButtons buttons,
+                                  StandardButton defaultButton) {
+    runNewMessageBox(resultHandler,
+                     parent,
+                     QMessageBox::Question,
+                     title,
+                     text,
+                     buttons,
+                     defaultButton);
   }
 
-  void MessageBoxRunner::warning(
-    Handler<StandardButton> const& resultHandler,
-    QWidget* parent,
-    QString const& title,
-    QString const& text,
-    StandardButtons buttons,
-    StandardButton defaultButton)
-  {
-    runNewMessageBox(resultHandler, parent, QMessageBox::Warning,
-                     title, text, buttons, defaultButton);
+  void MessageBoxRunner::warning(Handler<StandardButton> const& resultHandler,
+                                 QWidget* parent,
+                                 QString const& title,
+                                 QString const& text,
+                                 StandardButtons buttons,
+                                 StandardButton defaultButton) {
+    runNewMessageBox(resultHandler,
+                     parent,
+                     QMessageBox::Warning,
+                     title,
+                     text,
+                     buttons,
+                     defaultButton);
   }
 
   //
   // Overloads with empty handlers
   //
 
-  void MessageBoxRunner::critical(
-    QWidget* parent,
-    QString const& title,
-    QString const& text,
-    StandardButtons buttons,
-    StandardButton defaultButton)
-  {
-    critical(
-      [](StandardButton){},
-      parent, title, text, buttons, defaultButton);
+  void MessageBoxRunner::critical(QWidget* parent,
+                                  QString const& title,
+                                  QString const& text,
+                                  StandardButtons buttons,
+                                  StandardButton defaultButton) {
+    critical([](StandardButton) {},
+             parent,
+             title,
+             text,
+             buttons,
+             defaultButton);
   }
 
-  void MessageBoxRunner::information(
-    QWidget* parent,
-    QString const& title,
-    QString const& text,
-    StandardButtons buttons,
-    StandardButton defaultButton)
-  {
-    information(
-      [](StandardButton){},
-      parent, title, text, buttons, defaultButton);
+  void MessageBoxRunner::information(QWidget* parent,
+                                     QString const& title,
+                                     QString const& text,
+                                     StandardButtons buttons,
+                                     StandardButton defaultButton) {
+    information([](StandardButton) {},
+                parent,
+                title,
+                text,
+                buttons,
+                defaultButton);
   }
 
-  void MessageBoxRunner::question(
-    QWidget* parent,
-    QString const& title,
-    QString const& text,
-    StandardButtons buttons,
-    StandardButton defaultButton)
-  {
-    question(
-      [](StandardButton){},
-      parent, title, text, buttons, defaultButton);
+  void MessageBoxRunner::question(QWidget* parent,
+                                  QString const& title,
+                                  QString const& text,
+                                  StandardButtons buttons,
+                                  StandardButton defaultButton) {
+    question([](StandardButton) {},
+             parent,
+             title,
+             text,
+             buttons,
+             defaultButton);
   }
 
-  void MessageBoxRunner::warning(
-    QWidget* parent,
-    QString const& title,
-    QString const& text,
-    StandardButtons buttons,
-    StandardButton defaultButton)
-  {
-    warning(
-      [](StandardButton){},
-      parent, title, text, buttons, defaultButton);
+  void MessageBoxRunner::warning(QWidget* parent,
+                                 QString const& title,
+                                 QString const& text,
+                                 StandardButtons buttons,
+                                 StandardButton defaultButton) {
+    warning([](StandardButton) {}, parent, title, text, buttons, defaultButton);
   }
 }

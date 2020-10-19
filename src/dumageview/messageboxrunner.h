@@ -7,24 +7,20 @@
 
 #include <string>
 
-namespace dumageview
-{
+namespace dumageview {
   /**
    * Provides wrappers of QMessageBox functions to use handlers instead
    * of exec.
    */
-  class MessageBoxRunner : public DialogRunner
-  {
+  class MessageBoxRunner : public DialogRunner {
     Q_OBJECT;
 
    public:
-
     using DialogRunner::DialogRunner;
 
     virtual ~MessageBoxRunner() = default;
 
-    QMessageBox* messageBox() const
-    {
+    QMessageBox* messageBox() const {
       return static_cast<QMessageBox*>(dialog());
     }
 
@@ -97,7 +93,6 @@ namespace dumageview
       QMessageBox::StandardButton defaultButton = QMessageBox::NoButton);
 
    protected:
-
     virtual void setupConnections() override;
 
    private Q_SLOTS:

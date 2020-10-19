@@ -1,8 +1,7 @@
 #ifndef DUMAGEVIEW_MATH_FWD_H_
 #define DUMAGEVIEW_MATH_FWD_H_
 
-namespace dumageview::math
-{
+namespace dumageview::math {
   template<class Vec>
   double aspectRatio(Vec const& u);
 
@@ -12,8 +11,7 @@ namespace dumageview::math
   template<class Num, class Int>
   Num mod(Num n, Int m);
 
-  namespace detail::accessors
-  {
+  namespace detail::accessors {
     struct Getter;
   }
 

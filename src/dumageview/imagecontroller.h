@@ -10,44 +10,39 @@
 
 #include <boost/filesystem.hpp>
 
-#include <optional>
 #include <memory>
+#include <optional>
 #include <set>
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <tuple>
+#include <type_traits>
 #include <variant>
 #include <vector>
 
-namespace dumageview::imagecontroller
-{
+namespace dumageview::imagecontroller {
   using Path = boost::filesystem::path;
   using PathSet = std::set<Path>;
 
-  struct DirInfo
-  {
+  struct DirInfo {
     Path path;
     PathSet set;  // never empty after load
     PathSet::iterator current;  // always valid after load
     int index{0};
   };
 
-  enum class Direction : int
-  {
+  enum class Direction : int {
     backward = -1,
     forward = 1,
   };
 
   using FileExtensionSet = std::set<std::string_view>;
 
-  class ImageController : public QObject
-  {
+  class ImageController : public QObject {
     Q_OBJECT;
 
    public:
-
     ImageController();
     virtual ~ImageController() = default;
 
@@ -73,7 +68,6 @@ namespace dumageview::imagecontroller
     void saveFailed(QString const& message);
 
    private:
-
     struct OpenSuccess {};
 
     std::variant<QString, OpenSuccess> tryRead(QImageReader& reader,
@@ -100,15 +94,13 @@ namespace dumageview::imagecontroller
     FileExtensionSet _validExtensions;
   };
 
-  class Error : virtual public std::runtime_error
-  {
+  class Error : virtual public std::runtime_error {
    public:
     using std::runtime_error::runtime_error;
   };
 }
 
-namespace dumageview
-{
+namespace dumageview {
   using imagecontroller::ImageController;
 }
 

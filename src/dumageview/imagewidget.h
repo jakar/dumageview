@@ -14,14 +14,11 @@
 
 #include <memory>
 
-namespace dumageview
-{
-  class ImageWidget : public QOpenGLWidget
-  {
+namespace dumageview {
+  class ImageWidget : public QOpenGLWidget {
     Q_OBJECT;
 
    public:
-
     explicit ImageWidget(ActionSet& actions_, QWidget* parent_ = nullptr);
 
     virtual ~ImageWidget();
@@ -49,7 +46,6 @@ namespace dumageview
     void contextMenuWanted(QPoint const& globalPos);
 
    protected:
-
     //
     // GL handlers
     //
@@ -81,7 +77,6 @@ namespace dumageview
     void contextMenuEvent(QContextMenuEvent* evt) override;
 
    private:
-
     using Base = QOpenGLWidget;
 
     void zoom(int steps, QPointF const& center);
@@ -102,4 +97,4 @@ namespace dumageview
   };
 }
 
-#endif // DUMAGEVIEW_IMAGEWIDGET_H_
+#endif  // DUMAGEVIEW_IMAGEWIDGET_H_

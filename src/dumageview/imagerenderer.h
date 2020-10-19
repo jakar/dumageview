@@ -7,34 +7,33 @@
 #include <glm/glm.hpp>
 
 #include <QImage>
+#include <QObject>
 #include <QOpenGLTexture>
 #include <QPoint>
 #include <QSize>
-#include <QObject>
 
 #include <memory>
 #include <stdexcept>
 #include <variant>
 
 class QOpenGLFunctions_2_1;
-namespace dumageview { class ImageWidget; }
+namespace dumageview {
+  class ImageWidget;
+}
 
-namespace dumageview::imagerenderer::detail
-{
+namespace dumageview::imagerenderer::detail {
+  using renderview::ManualView;
   using renderview::View;
   using renderview::ZoomToFitView;
-  using renderview::ManualView;
 
-  using renderview::ViewMod;
   using renderview::SizeInfo;
+  using renderview::ViewMod;
 
-  class Error : public virtual std::runtime_error
-  {
+  class Error : public virtual std::runtime_error {
     using std::runtime_error::runtime_error;
   };
 
-  struct ImageState
-  {
+  struct ImageState {
     QImage image;
     QOpenGLTexture texture;
     View view;
@@ -44,10 +43,8 @@ namespace dumageview::imagerenderer::detail
    * Maintains GL-related things.
    * Only alive when GL is initialized.
    */
-  class ImageRenderer
-  {
+  class ImageRenderer {
    public:
-
     ImageRenderer(ImageWidget& widget,
                   QMetaObject::Connection&& contextDestroyConnection);
 
@@ -70,7 +67,6 @@ namespace dumageview::imagerenderer::detail
     void draw();
 
    private:
-
     ImageRenderer(ImageRenderer const&) = delete;
     ImageRenderer& operator=(ImageRenderer const&) = delete;
 
@@ -94,10 +90,8 @@ namespace dumageview::imagerenderer::detail
   };
 }
 
-namespace dumageview
-{
-  namespace imagerenderer
-  {
+namespace dumageview {
+  namespace imagerenderer {
     using detail::Error;
     using detail::ImageRenderer;
   }
@@ -105,4 +99,4 @@ namespace dumageview
   using imagerenderer::ImageRenderer;
 }
 
-#endif // DUMAGEVIEW_IMAGERENDERER_H_
+#endif  // DUMAGEVIEW_IMAGERENDERER_H_
