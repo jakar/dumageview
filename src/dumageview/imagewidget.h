@@ -13,6 +13,7 @@
 #include <QWidget>
 
 #include <memory>
+#include <optional>
 
 namespace dumageview {
   class ImageWidget : public QOpenGLWidget {
