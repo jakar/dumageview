@@ -16,6 +16,7 @@ set(
   -Wformat-nonliteral \
   -Wformat-security \
   -Wnon-virtual-dtor \
+  -Wno-deprecated-declarations \
   -Wno-unused-parameter \
   "
 )
